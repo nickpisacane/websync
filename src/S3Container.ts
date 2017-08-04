@@ -14,7 +14,8 @@ const s3 = new S3()
 const MAX_LIST_OBJECTS = 1000
 
 export default class S3Container implements Container {
-  public bucketName: string
+  private bucketName: string
+  
   public type: ContainerType = 'S3'
 
   constructor(bucketName: string) {
