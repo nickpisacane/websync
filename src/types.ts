@@ -10,6 +10,7 @@ export interface Item {
   modtime: Date
   size: number
   isSymbolicLink: boolean
+  container: Container
   read(): Promise<Buffer>
 }
 

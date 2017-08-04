@@ -1,5 +1,5 @@
 import { S3 } from 'aws-sdk'
-import { Item } from './types'
+import { Item, Container } from './types'
 
 const s3 = new S3()
 
@@ -11,9 +11,10 @@ export default class S3Item implements Item {
   public modtime: Date
   public size: number
   public isSymbolicLink: boolean
+  public container: Container
   
 
-  constructor(bucketName: string, s3Object: S3.Object) {
+  constructor(bucketName: string, s3Object: S3.Object, container: Container) {
     this.bucketName = bucketName
     this.s3Object = s3Object
     if (!s3Object.Key) {
@@ -29,6 +30,7 @@ export default class S3Item implements Item {
     this.modtime = s3Object.LastModified
     this.size = s3Object.Size
     this.isSymbolicLink = false
+    this.container = container
   }
 
   private async getBody(): Promise<Buffer> {

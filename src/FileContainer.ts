@@ -35,7 +35,7 @@ export default class FileContainer implements Container {
 
     const queue = new PQueue({ concurrency: 10 })
     const items = await Promise.all<Item>(
-      fileNames.map(fileName => queue.add(() => FileItem.fromFileName(fileName)))
+      fileNames.map(fileName => queue.add(() => FileItem.fromFileName(fileName, this)))
     )
     return items
   }
@@ -44,7 +44,7 @@ export default class FileContainer implements Container {
     const body = await item.read()
     const fileName = Path.join(this.baseDirectory, item.key)
     await fs.writeFile(fileName, body)
-    return FileItem.fromFileName(fileName)
+    return FileItem.fromFileName(fileName, this)
   }
 
   public async delItem(item: Item): Promise<void> {
