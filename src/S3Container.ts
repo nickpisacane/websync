@@ -1,12 +1,13 @@
 import { S3 } from 'aws-sdk'
-import Container, { ListItemsOptions } from './Container'
-import Item from './Item'
+import { Item, Container, ListItemsOptions, ContainerType } from './types'
 
 const s3 = new S3()
 const MAX_LIST_OBJECTS = 1000
 
 export default class S3Container implements Container {
   private bucketName: string
+
+  public type: ContainerType = 'S3'
 
   constructor(bucketName: string) {
     this.bucketName = bucketName

@@ -2,12 +2,13 @@ import * as Path from 'path'
 import * as glob from 'glob'
 import * as minimatch from 'minimatch'
 import * as PQueue from 'p-queue'
-import Container, { ListItemsOptions } from './Container'
-import Item from './Item'
+import { Container, ContainerType, ListItemsOptions, Item } from './types'
 import FileItem from './FileItem'
 
 export default class FileContainer implements Container {
   private baseDirectory: string
+
+  public type: ContainerType = 'S3'
 
   constructor(baseDirectory: string) {
     this.baseDirectory = baseDirectory
