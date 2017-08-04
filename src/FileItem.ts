@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import Item from './Item'
+import { Item } from './types'
 
 export default class FileItem implements Item {
   public key: string
