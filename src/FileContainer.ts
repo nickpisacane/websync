@@ -1,4 +1,5 @@
 import * as Path from 'path'
+import * as fs from 'fs-extra'
 import * as glob from 'glob'
 import * as minimatch from 'minimatch'
 import * as PQueue from 'p-queue'
@@ -37,5 +38,17 @@ export default class FileContainer implements Container {
       fileNames.map(fileName => queue.add(() => FileItem.fromFileName(fileName)))
     )
     return items
+  }
+
+  public async putItem(item: Item): Promise<Item> {
+    const body = await item.read()
+    const fileName = Path.join(this.baseDirectory, item.key)
+    await fs.writeFile(fileName, body)
+    return FileItem.fromFileName(fileName)
+  }
+
+  public async delItem(item: Item): Promise<void> {
+    const fileName = Path.join(this.baseDirectory, item.key)
+    await fs.unlink(fileName)
   }
 }
