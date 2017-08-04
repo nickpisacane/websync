@@ -1,0 +1,25 @@
+{
+  "name": "web-sync",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/chai": "^4.0.2",
+    "@types/fs-extra": "^4.0.0",
+    "@types/glob": "^5.0.30",
+    "@types/minimatch": "^2.0.29",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^8.0.19",
+    "@types/p-queue": "^1.1.0",
+    "chai": "^4.1.0",
+    "mocha": "^3.5.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.94.0",
+    "fs-extra": "^4.0.1",
+    "glob": "^7.1.2",
+    "minimatch": "^3.0.4",
+    "p-queue": "^1.1.0"
+  }
+}
