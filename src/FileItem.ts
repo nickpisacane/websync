@@ -18,10 +18,6 @@ export default class FileItem implements Item {
     return fs.readFile(this.key)
   }
 
-  del(): Promise<boolean> {
-    return fs.unlink(this.key).then(() => true)
-  }
-
   public static async fromFileName(fileName: string): Promise<FileItem> {
     const stats = await fs.stat(fileName)
     return new FileItem(fileName, stats)
