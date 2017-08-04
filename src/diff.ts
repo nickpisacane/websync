@@ -1,0 +1,59 @@
+import { Container, Item, ItemDiffType, ItemDiff } from './types'
+
+type DiffKey = 'modtime' | 'size'
+
+const getItem = (items: Item[], key: string): Item | undefined => {
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].key === key) return items[i]
+  }
+}
+
+const compareItem = (source: Item, target: Item, diffKey: DiffKey): boolean => {
+  switch (diffKey) {
+    case 'modtime':
+      return source.modtime.getTime() > target.modtime.getTime()
+    case 'size':
+      return source.size === target.size
+  }
+}
+
+export default async function diff(
+  source: Container,
+  target: Container,
+  diffKey: DiffKey = 'modtime'
+): Promise<ItemDiff[]> {
+  const sourceItems = await source.listItems()
+  const targetItems = await target.listItems()
+  const diffs: ItemDiff[] = []
+
+  sourceItems.forEach(source => {
+    const target = getItem(targetItems, source.key)
+    if (!target) {
+      diffs.push({
+        type: 'CREATE',
+        key: source.key,
+        source,
+      })
+    } else if (!compareItem(source, target, diffKey)) {
+      diffs.push({
+        type: 'UPDATE',
+        key: source.key,
+        source,
+        target,
+      })
+    }
+  })
+
+  targetItems.forEach(target => {
+    const source = getItem(sourceItems, target.key)
+    if (!source) {
+      diffs.push({
+        type: 'DELETE',
+        key: target.key,
+        target,
+      })
+    }
+  })
+
+  return diffs
+}
