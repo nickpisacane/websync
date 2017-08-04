@@ -37,9 +37,23 @@ export interface Container {
 
 export type ItemDiffType = 'UPDATE' | 'CREATE' | 'DELETE'
 
-export interface ItemDiff {
-  type: ItemDiffType
+export type ItemDiffUpdate = {
+  type: 'UPDATE'
   key: string
-  source?: Item
-  target?: Item
+  source: Item
+  target: Item
 }
+
+export type ItemDiffCreate = {
+  type: 'CREATE'
+  key: string 
+  source: Item
+}
+
+export type ItemDiffDelete = {
+  type: 'DELETE'
+  key: string
+  target: Item
+}
+
+export type ItemDiff = ItemDiffUpdate | ItemDiffCreate | ItemDiffDelete
