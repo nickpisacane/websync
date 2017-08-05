@@ -41,6 +41,21 @@ export const normalizeInvalidationPath = (path: string, wildcard: boolean = fals
 export const isInvalidated = (path: string, invalidations: string[]) =>
   invalidations.some(invalidation => match(path, invalidation))
 
+export const shouldWildcard = (
+  diffChildCount: number,
+  itemChildCount: number,
+  policy: WildcardPolicy
+): boolean => {
+  // No children. It's a file.
+  if (itemChildCount === 0) {
+    return false
+  }
+
+  return policy === 'majority'
+    ? diffChildCount / itemChildCount > 0.5
+    : diffChildCount === itemChildCount
+}
+
 export type WildcardPolicy = 'majority' | 'all'
 
 export interface GenerateInvalidationsOptions {
@@ -75,28 +90,23 @@ export default function generateInvalidations({
   const diffTree = new PathTree(diffs.map(d => d.key))
   const invalidationPaths: string[] = []
 
-  diffTree.walk('/', node => {
-    if (isInvalidated(node.path, invalidationPaths)) return
+  diffTree.walk('/', diffNode => {
+    if (isInvalidated(diffNode.path, invalidationPaths)) return
 
     let invalidationPath: string
-    if (!node.children.length) {
-      invalidationPath = node.path
+    if (!diffNode.children.length) {
+      invalidationPath = diffNode.path
     }
 
-    const itemNode = itemTree.lookup(node.path)
+    const itemNode = itemTree.lookup(diffNode.path)
     if (!itemNode) {
-      throw new Error(`Expected item tree to have node: "${node.path}"`)
+      throw new Error(`Expected item tree to have node: "${diffNode.path}"`)
     }
 
-    const shouldWildCard = wildcardPolicy === 'majority'
-      ? node.children.length / itemNode.children.length > 0.5
-      : node.children.length === itemNode.children.length
+    const diffChildCount = diffTree.countAllChildren(diffNode)
+    const itemChildCount = itemTree.countAllChildren(itemNode)
+    const isWildcarded = shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
 
-    if (shouldWildCard) {
-      invalidationPath = Path.join(node.path, '*')
-    } else {
-      invalidationPath = node.path
-    }
   })
 
   return []
