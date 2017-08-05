@@ -63,7 +63,6 @@ export interface GenerateInvalidationsOptions {
   targetItems: Item[]
   wildcardPolicy: WildcardPolicy
   wildcardAll: boolean
-  trailingSlash: boolean
   invalidateDeletes: boolean
 }
 
@@ -72,7 +71,6 @@ export default function generateInvalidations({
   targetItems,
   wildcardPolicy = 'majority',
   wildcardAll = false,
-  trailingSlash = false,
   invalidateDeletes = true,
 }: GenerateInvalidationsOptions): Invalidation[] {
   const filterDiffTypes: ItemDiffType[] = ['CREATE']
@@ -106,7 +104,7 @@ export default function generateInvalidations({
     const diffChildCount = diffTree.countAllChildren(diffNode)
     const itemChildCount = itemTree.countAllChildren(itemNode)
     const isWildcarded = wildcardAll || shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
-
+    
   })
 
   return []
