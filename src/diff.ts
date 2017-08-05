@@ -8,12 +8,12 @@ const getItem = (items: Item[], key: string): Item | undefined => {
   }
 }
 
-const compareItem = (source: Item, target: Item, diffKey: DiffKey): boolean => {
+const shouldUpdate = (source: Item, target: Item, diffKey: DiffKey): boolean => {
   switch (diffKey) {
     case 'modtime':
       return source.modtime.getTime() > target.modtime.getTime()
     case 'size':
-      return source.size === target.size
+      return source.size !== target.size
   }
 }
 
@@ -34,7 +34,7 @@ export default async function diff(
         key: source.key,
         source,
       })
-    } else if (!compareItem(source, target, diffKey)) {
+    } else if (shouldUpdate(source, target, diffKey)) {
       diffs.push({
         type: 'UPDATE',
         key: source.key,
