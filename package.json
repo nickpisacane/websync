@@ -12,6 +12,7 @@
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/chai": "^4.0.2",
+    "@types/faker": "^4.1.0",
     "@types/fs-extra": "^4.0.0",
     "@types/glob": "^5.0.30",
     "@types/minimatch": "^2.0.29",
@@ -19,6 +20,7 @@
     "@types/node": "^8.0.19",
     "@types/p-queue": "^1.1.0",
     "chai": "^4.1.0",
+    "faker": "^4.1.0",
     "mocha": "^3.5.0",
     "ts-mocha": "^1.0.3",
     "tslint": "^5.5.0",
