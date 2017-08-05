@@ -39,7 +39,7 @@ export const normalizeInvalidationPath = (path: string, wildcard: boolean = fals
 }
 
 export const isInvalidated = (path: string, invalidations: string[]) =>
-  invalidations.some(invalidation => match(normalizeInvalidationPath(path, false), invalidation))
+  invalidations.some(invalidation => match(path, invalidation))
 
 export type WildcardPolicy = 'majority' | 'all'
 
