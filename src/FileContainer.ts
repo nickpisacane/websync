@@ -22,7 +22,7 @@ export default class FileContainer implements Container {
         resolve(fileNames)
       })
     })
-  } 
+  }
 
   public async listItems(options: ListItemsOptions = {}): Promise<Item[]> {
     let fileNames = await this.readAllFileNames()

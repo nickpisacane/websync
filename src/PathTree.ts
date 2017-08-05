@@ -9,13 +9,13 @@ export class Node {
   public parent: Node | null = null
 
   constructor(name: string, path: string, parent?: Node) {
-    this.name = name 
+    this.name = name
     this.path = path
     if (parent) {
       this.parent = parent
     }
   }
-  
+
   toJSON(): Partial<Node> {
     return {
       name: this.name,
@@ -47,13 +47,13 @@ export default class PathTree {
 
       context = node
     })
-    
+
     return context
   }
 
   public lookup(path: string, context: Node = this.root): Node | null {
     const paths = splitPath(path)
-    
+
     for (let i = 0; i < paths.length; i++) {
       const prevContext: Node = context
 

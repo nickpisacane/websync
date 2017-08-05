@@ -27,7 +27,7 @@ export interface PutItemOptions {
 }
 
 export interface DelItemOptions {
-  s3Options?: S3DeleteModifier 
+  s3Options?: S3DeleteModifier
 }
 
 
@@ -49,7 +49,7 @@ export type ItemDiffUpdate = {
 
 export type ItemDiffCreate = {
   type: 'CREATE'
-  key: string 
+  key: string
   source: Item
 }
 

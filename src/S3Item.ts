@@ -12,7 +12,7 @@ export default class S3Item implements Item {
   public size: number
   public isSymbolicLink: boolean
   public container: Container
-  
+
 
   constructor(bucketName: string, s3Object: S3.Object, container: Container) {
     this.bucketName = bucketName
