@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "lint": "tslint src/**/*.ts --fix"
+  },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/chai": "^4.0.2",
