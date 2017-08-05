@@ -4,7 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "lint": "tslint src/**/*.ts --fix"
+    "lint": "tslint src/**/*.ts --fix",
+    "test": "npm run test:unit",
+    "test:unit": "NODE_ENV=test ts-mocha --colors test/unit/**/*.test.ts",
+    "test:watch": "watch-run -i -p 'test/**/*.ts,src/**/*.ts' npm run test"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
@@ -16,7 +19,11 @@
     "@types/node": "^8.0.19",
     "@types/p-queue": "^1.1.0",
     "chai": "^4.1.0",
-    "mocha": "^3.5.0"
+    "mocha": "^3.5.0",
+    "ts-mocha": "^1.0.3",
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.2",
+    "watch-run": "^1.2.5"
   },
   "dependencies": {
     "aws-sdk": "^2.94.0",
