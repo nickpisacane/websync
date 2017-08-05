@@ -30,8 +30,11 @@ type WalkFn = (node: Node) => void
 export default class PathTree {
   private root: Node
 
-  constructor() {
+  constructor(paths?: string[]) {
     this.root = new Node('%ROOT%', '/')
+    if (paths) {
+      paths.forEach(path => this.add(path))
+    }
   }
 
   public add(path: string): Node {
