@@ -14,7 +14,7 @@ export default class S3Item implements Item {
   public container: Container
 
 
-  constructor(bucketName: string, s3Object: S3.Object, container: Container) {
+  constructor(bucketName: string, s3Object: S3.Object) {
     this.bucketName = bucketName
     this.s3Object = s3Object
     if (!s3Object.Key) {
@@ -30,7 +30,6 @@ export default class S3Item implements Item {
     this.modtime = s3Object.LastModified
     this.size = s3Object.Size
     this.isSymbolicLink = false
-    this.container = container
   }
 
   private async getBody(): Promise<Buffer> {

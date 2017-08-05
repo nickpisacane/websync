@@ -55,7 +55,7 @@ export default class S3Container implements Container {
     if (options.exclude) {
       objects = objects.filter(obj => obj.Key && !minimatch(obj.Key, options.exclude as string))
     }
-    return objects.map(obj => new S3Item(this.bucketName, obj, this))
+    return objects.map(obj => new S3Item(this.bucketName, obj))
   }
 
   public async putItem(item: Item, options?: PutItemOptions): Promise<Item> {
@@ -76,7 +76,7 @@ export default class S3Container implements Container {
       LastModified: objectHead.LastModified,
       Size: body.length,
     }
-    const ret: Item = new S3Item(item.key, s3Object, this)
+    const ret: Item = new S3Item(item.key, s3Object)
 
     return ret
   }
