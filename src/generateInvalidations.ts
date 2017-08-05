@@ -61,9 +61,9 @@ export type WildcardPolicy = 'majority' | 'all'
 export interface GenerateInvalidationsOptions {
   diffs: ItemDiff[]
   targetItems: Item[]
-  wildcardPolicy: WildcardPolicy
-  wildcardAll: boolean
-  invalidateDeletes: boolean
+  wildcardPolicy?: WildcardPolicy
+  wildcardAll?: boolean
+  invalidateDeletes?: boolean
 }
 
 export default function generateInvalidations({
@@ -72,7 +72,7 @@ export default function generateInvalidations({
   wildcardPolicy = 'majority',
   wildcardAll = false,
   invalidateDeletes = true,
-}: GenerateInvalidationsOptions): Invalidation[] {
+}: GenerateInvalidationsOptions): string[] {
   const filterDiffTypes: ItemDiffType[] = ['CREATE']
   if (!invalidateDeletes) filterDiffTypes.push('DELETE')
 
@@ -91,11 +91,6 @@ export default function generateInvalidations({
   diffTree.walk('/', diffNode => {
     if (isInvalidated(diffNode.path, invalidationPaths)) return
 
-    let invalidationPath: string
-    if (!diffNode.children.length) {
-      invalidationPath = diffNode.path
-    }
-
     const itemNode = itemTree.lookup(diffNode.path)
     if (!itemNode) {
       throw new Error(`Expected item tree to have node: "${diffNode.path}"`)
@@ -104,8 +99,10 @@ export default function generateInvalidations({
     const diffChildCount = diffTree.countAllChildren(diffNode)
     const itemChildCount = itemTree.countAllChildren(itemNode)
     const isWildcarded = wildcardAll || shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
-    
+
+    const invalidationPath = normalizeInvalidationPath(diffNode.path, isWildcarded)
+    invalidationPaths.push(invalidationPath)
   })
 
-  return []
+  return invalidationPaths
 }
