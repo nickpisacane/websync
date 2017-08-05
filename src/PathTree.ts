@@ -15,6 +15,14 @@ export class Node {
       this.parent = parent
     }
   }
+  
+  toJSON(): Partial<Node> {
+    return {
+      name: this.name,
+      path: this.path,
+      children: this.children,
+    }
+  }
 }
 
 type WalkFn = (node: Node) => void
@@ -33,7 +41,7 @@ export default class PathTree {
     paths.forEach((path, i) => {
       let node = this.lookup(paths[i], context)
       if (!node) {
-        node = new Node(paths[i], joinPaths(paths, i), context)
+        node = new Node(paths[i], joinPaths(paths, i + 1), context)
         context.children.push(node)
       }
 
@@ -65,7 +73,7 @@ export default class PathTree {
     return context
   }
 
-  public walk(pathOrNode: Node | string = this.root, fn: WalkFn) {
+  public walk(pathOrNode: Node | string, fn: WalkFn) {
     let node: Node | null
     if (typeof pathOrNode === 'string') {
       node = this.lookup(pathOrNode)
