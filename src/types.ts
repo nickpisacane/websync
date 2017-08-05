@@ -60,3 +60,8 @@ export type ItemDiffDelete = {
 }
 
 export type ItemDiff = ItemDiffUpdate | ItemDiffCreate | ItemDiffDelete
+
+export interface Invalidation {
+  path: string
+  forDiff: ItemDiff
+}
