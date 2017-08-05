@@ -1,5 +1,8 @@
 import { S3 } from 'aws-sdk'
 
+export type S3PutModifier = Partial<S3.PutObjectRequest>
+export type S3DeleteModifier = Partial<S3.DeleteObjectRequest>
+
 export interface FilterOptions {
   include?: string // glob pattern
   exclude?: string // glob pattern
@@ -20,11 +23,11 @@ export interface ListItemsOptions extends FilterOptions {
 }
 
 export interface PutItemOptions {
-  s3Options?: S3.PutObjectRequest
+  s3Options?: S3PutModifier
 }
 
 export interface DelItemOptions {
-  s3Options?: S3.DeleteObjectRequest 
+  s3Options?: S3DeleteModifier 
 }
 
 
