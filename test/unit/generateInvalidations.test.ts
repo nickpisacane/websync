@@ -5,6 +5,11 @@ import generateInvalidations, {
   isInvalidated,
   normalizeInvalidationPath,
 } from '../../src/generateInvalidations'
+import diff from '../../src/diff'
+import {
+  MockItem,
+  MockSuite,
+} from '../utils'
 
 describe('generateInvalidations', () => {
   // @see: http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#invalidation-specifying-objects
@@ -68,5 +73,17 @@ describe('generateInvalidations', () => {
     expect(normalizeInvalidationPath('/foo/', true)).to.equal('/foo/*')
     expect(normalizeInvalidationPath('foo/*', true)).to.equal('/foo/*')
     expect(normalizeInvalidationPath('foo*', true)).to.equal('/foo*')
+  })
+
+  it('basic invalidations', async () => {
+    const suite = new MockSuite()
+    const diffs = await diff(suite.sourceContainer, suite.targetContainer)
+    const targetItems = await suite.targetContainer.listItems()
+    const invalidations = generateInvalidations({
+      diffs,
+      targetItems,
+    })
+
+    // TODO: verify diffs
   })
 })
