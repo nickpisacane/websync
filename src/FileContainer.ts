@@ -19,6 +19,11 @@ export default class FileContainer implements Container {
     return new Promise((resolve, reject) => {
       glob(Path.join(this.baseDirectory, '**'), (err, fileNames) => {
         if (err) return reject(err)
+
+        fileNames = fileNames
+          .map(f => f.replace(this.baseDirectory, ''))
+          .filter(f => !!f)
+
         resolve(fileNames)
       })
     })
@@ -34,17 +39,29 @@ export default class FileContainer implements Container {
     }
 
     const queue = new PQueue({ concurrency: 10 })
-    const items = await Promise.all<Item>(
-      fileNames.map(fileName => queue.add(() => FileItem.fromFileName(fileName)))
+    const items: FileItem[] = []
+
+    await Promise.all(
+      fileNames.map(fileName => queue.add(async () => {
+        const stat = await fs.stat(Path.join(this.baseDirectory, fileName))
+        if (!stat.isDirectory()) {
+          items.push(new FileItem(this.baseDirectory, fileName, stat))
+        }
+      }))
     )
+
     return items
   }
 
   public async putItem(item: Item): Promise<Item> {
     const body = await item.read()
     const fileName = Path.join(this.baseDirectory, item.key)
+    const dirName = Path.dirname(fileName)
+
+    await fs.mkdirp(dirName)
     await fs.writeFile(fileName, body)
-    return FileItem.fromFileName(fileName)
+
+    return FileItem.fromFileName(this.baseDirectory, item.key)
   }
 
   public async delItem(item: Item): Promise<void> {
