@@ -23,24 +23,27 @@ export default class S3Container implements Container {
   }
 
   private async listAllObjects(): Promise<S3.Object[]> {
-    let startAfter: string | undefined
+    let continuationToken: string | undefined
     let objects: S3.Object[] = []
+    let done = false
 
-    while (true) {
+    while (!done) {
       const params: S3.ListObjectsV2Request = {
         Bucket: this.bucketName,
       }
-      if (startAfter) {
-        params.StartAfter = startAfter
+      if (continuationToken) {
+        params.ContinuationToken = continuationToken
       }
       const res = await s3.listObjectsV2(params).promise()
       const newObjects = res.Contents
       if (newObjects) {
-        startAfter = newObjects[newObjects.length - 1].Key
         objects = newObjects.concat(newObjects)
       }
-      if (!newObjects || newObjects.length < MAX_LIST_OBJECTS) {
-        break
+
+      if (res.IsTruncated) {
+        continuationToken = res.NextContinuationToken
+      } else {
+        done = true
       }
     }
 
