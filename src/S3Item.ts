@@ -11,8 +11,6 @@ export default class S3Item implements Item {
   public modtime: Date
   public size: number
   public isSymbolicLink: boolean
-  public container: Container
-
 
   constructor(bucketName: string, s3Object: S3.Object) {
     this.bucketName = bucketName

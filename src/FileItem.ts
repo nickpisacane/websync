@@ -6,7 +6,6 @@ export default class FileItem implements Item {
   public modtime: Date
   public size: number
   public isSymbolicLink: boolean
-  public container: Container
 
   constructor(fileName: string, stats: fs.Stats) {
     this.key = fileName
