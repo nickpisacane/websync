@@ -102,11 +102,8 @@ export class MockS3Bucket {
         startIndex = this.objects.indexOf(obj) + 1
       }
     }
-    console.log('StartKey: ', startKey)
-    console.log('StartIndex: ', startIndex)
 
     const objects = this.objects.slice(startIndex, startIndex + maxKeys)
-    console.log('Objects: ', objects.length)
     const Contents: S3.Object[] = objects.map((obj): S3.Object => ({
       Key: obj.Key,
       LastModified: obj.LastModified,
