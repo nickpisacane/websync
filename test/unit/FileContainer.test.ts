@@ -12,9 +12,9 @@ describe('FileContainer', () => {
   it('listItems only lists files', async () => {
     const fileItems = await fileContainer.listItems()
     const expectedKeys = [
-      '/bang/baz.txt',
-      '/bar.txt',
-      '/foo.txt',
+      'bang/baz.txt',
+      'bar.txt',
+      'foo.txt',
     ]
     const actualKeys = fileItems.map(i => i.key)
 
@@ -26,7 +26,7 @@ describe('FileContainer', () => {
   it('putItem()', async () => {
     const body = new Buffer('Hello world')
     const item: Item = {
-      key: '/bang/a/b/d.txt',
+      key: 'bang/a/b/d.txt',
       modtime: new Date(),
       size: body.length,
       isSymbolicLink: false,
@@ -44,7 +44,7 @@ describe('FileContainer', () => {
   it('delItem()', async () => {
     const body = new Buffer('Hello world')
     const item: Item = {
-      key: '/bang/a/b/d.txt',
+      key: 'bang/a/b/d.txt',
       modtime: new Date(),
       size: body.length,
       isSymbolicLink: false,
