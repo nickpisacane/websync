@@ -37,7 +37,7 @@ export default class S3Container implements Container {
       const res = await s3.listObjectsV2(params).promise()
       const newObjects = res.Contents
       if (newObjects) {
-        objects = newObjects.concat(newObjects)
+        objects = objects.concat(newObjects)
       }
 
       if (res.IsTruncated) {
