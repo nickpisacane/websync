@@ -79,7 +79,6 @@ describe('awsMocks', () => {
     expect(first.Contents).to.have.length(1000)
     expect(first.NextContinuationToken).to.be.a('string')
     expect(first.IsTruncated).to.equal(true)
-    console.log(first.NextContinuationToken)
 
     const second = await s3.listObjectsV2({
       Bucket: 'LIST',
