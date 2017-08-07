@@ -51,12 +51,17 @@ export const shouldWildcard = (
     return false
   }
 
-  return policy === 'majority'
-    ? diffChildCount / itemChildCount > 0.5
-    : diffChildCount === itemChildCount
+  switch (policy) {
+    case 'minority':
+      return diffChildCount > 0
+    case 'majority':
+      return diffChildCount / itemChildCount > 0.5
+    case 'unanimous':
+      return diffChildCount === itemChildCount
+  }
 }
 
-export type WildcardPolicy = 'majority' | 'all'
+export type WildcardPolicy = 'minority' | 'majority' | 'unanimous'
 
 export interface GenerateInvalidationsOptions {
   diffs: ItemDiff[]
