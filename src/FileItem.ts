@@ -11,6 +11,9 @@ export default class FileItem implements Item {
   public isSymbolicLink: boolean
 
   constructor(baseDirectory: string, fileName: string, stats: fs.Stats) {
+    // remove leading slash
+    fileName = fileName.replace(/^\//, '')
+
     this.baseDirectory = baseDirectory
     this.key = fileName
     this.modtime = stats.mtime
@@ -24,7 +27,6 @@ export default class FileItem implements Item {
 
   public static async fromFileName(baseDirectory: string, fileName: string): Promise<FileItem> {
     const stats = await fs.stat(Path.join(baseDirectory, fileName))
-    fileName = fileName.replace(/^\//, '')
 
     return new FileItem(baseDirectory, fileName, stats)
   }
