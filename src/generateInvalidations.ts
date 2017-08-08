@@ -94,7 +94,9 @@ export default function generateInvalidations({
   const invalidationPaths: string[] = []
 
   diffTree.walk('/', diffNode => {
-    if (isInvalidated(diffNode.path, invalidationPaths)) return
+    if (isInvalidated(diffNode.path, invalidationPaths) || diffNode.name === '%ROOT%') {
+      return
+    }
 
     const itemNode = itemTree.lookup(diffNode.path)
     if (!itemNode) {
