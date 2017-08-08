@@ -4,6 +4,7 @@ import generateInvalidations, {
   match,
   isInvalidated,
   normalizeInvalidationPath,
+  WildcardPolicy,
 } from '../../src/generateInvalidations'
 import diff from '../../src/diff'
 import {
@@ -11,7 +12,22 @@ import {
   MockSuite,
 } from '../utils'
 
+const expectInvalidation = (invalidations: string[], path: string) => {
+  expect(invalidations.indexOf(path)).to.not.equal(-1)
+}
+
 describe('generateInvalidations', () => {
+  const basicInvalidations = async (policy: WildcardPolicy): Promise<string[]> => {
+    const suite = new MockSuite()
+    const diffs = await diff(suite.sourceContainer, suite.targetContainer)
+    const targetItems = await suite.targetContainer.listItems()
+    return generateInvalidations({
+      diffs,
+      targetItems,
+      wildcardPolicy: policy,
+    })
+  }
+
   // @see: http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#invalidation-specifying-objects
   it('match()', () => {
     // all objects in directory
@@ -75,15 +91,33 @@ describe('generateInvalidations', () => {
     expect(normalizeInvalidationPath('foo*', true)).to.equal('/foo*')
   })
 
-  it('basic invalidations', async () => {
-    const suite = new MockSuite()
-    const diffs = await diff(suite.sourceContainer, suite.targetContainer)
-    const targetItems = await suite.targetContainer.listItems()
-    const invalidations = generateInvalidations({
-      diffs,
-      targetItems,
-    })
+  it('basic invalidations with policy = "majority"', async () => {
+    const invalidations = await basicInvalidations('majority')
 
-    // TODO: verify diffs
+    expect(invalidations).to.have.length(2)
+    // update.html => /update.html
+    expectInvalidation(invalidations, '/update.html')
+    // i/am/deleted.css => /i*
+    expectInvalidation(invalidations, '/i*')
+  })
+
+  it('basic invalidations with policy = "minority"', async () => {
+    const invalidations = await basicInvalidations('minority')
+
+    expect(invalidations).to.have.length(2)
+    // update.html => /update.html
+    expectInvalidation(invalidations, '/update.html')
+    // i/am/deleted.css => /i*
+    expectInvalidation(invalidations, '/i*')
+  })
+
+  it('basic invalidations with policy = "unanimous"', async () => {
+    const invalidations = await basicInvalidations('unanimous')
+
+    expect(invalidations).to.have.length(2)
+    // update.html => /update.html
+    expectInvalidation(invalidations, '/update.html')
+    // i/am/deleted.css => /i*
+    expectInvalidation(invalidations, '/i*')
   })
 })
