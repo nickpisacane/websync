@@ -92,12 +92,23 @@ export default class PathTree {
     })
   }
 
-  public countAllChildren(pathOrNode: Node | string = this.root): number {
+  public countAllChildren(pathOrNode: Node | string = this.root, onlyFiles: boolean = true): number {
     let count = 0
     this.walk(pathOrNode, node => {
-      count += node.children.length
+      count += onlyFiles ? this.countDirectChildren(node) : node.children.length
     })
 
     return count
+  }
+
+  public countDirectChildren(pathOrNode: Node | string = this.root): number {
+    const node: Node | null = typeof pathOrNode === 'string'
+      ? this.lookup(pathOrNode)
+      : pathOrNode
+
+    if (!node) return 0
+
+    // only counts "files"
+    return node.children.filter(child => child.children.length === 0).length
   }
 }

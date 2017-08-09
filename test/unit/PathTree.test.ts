@@ -68,7 +68,18 @@ describe('PathTree', () => {
       'foo/d.txt',
     ])
 
-    expect(tree.countAllChildren('/foo')).to.equal(4)
+    expect(tree.countAllChildren('/foo')).to.equal(3)
+    expect(tree.countAllChildren('/foo', false)).to.equal(4)
     expect(tree.countAllChildren('/foo/a')).to.equal(2)
+    expect(tree.countAllChildren('/foo/a', false)).to.equal(2)
+  })
+
+  it('counts direct child nodes', () => {
+    const tree = new PathTree([
+      'foo/a/b.txt',
+      'foo/a/c.txt',
+    ])
+
+    expect(tree.countDirectChildren('/foo/a')).to.equal(2)
   })
 })
