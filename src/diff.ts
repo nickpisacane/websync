@@ -1,6 +1,6 @@
 import { Container, Item, ItemDiffType, ItemDiff } from './types'
 
-type DiffKey = 'modtime' | 'size'
+export type DiffKey = 'modtime' | 'size'
 
 const getItem = (items: Item[], key: string): Item | undefined => {
   for (let i = 0; i < items.length; i++) {
