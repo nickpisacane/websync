@@ -105,9 +105,24 @@ export default function generateInvalidations({
 
     const diffChildCount = diffTree.countAllChildren(diffNode)
     const itemChildCount = itemTree.countAllChildren(itemNode)
-    const isWildcarded = wildcardAll || shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
+    const diffDirectChildCount = diffTree.countDirectChildren(diffNode)
+    const itemDirectChildCount = itemTree.countDirectChildren(itemNode)
+    let isWildcarded = wildcardAll || shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
+    let path = diffNode.path
 
-    const invalidationPath = normalizeInvalidationPath(diffNode.path, isWildcarded)
+    // TODO: Make sure this makes sense.
+    // If the `diffNode`'s path is not wildcarded on the basis of ALL of its children, then check
+    // if its path on the basis of DIRECT children can be wildcarded. The result will be a path
+    // with a forward slash BEFORE the wildcard (see the Amazon Doc Reference) as this will only
+    // invalidate direct children.
+    if (!isWildcarded) {
+      if (shouldWildcard(diffDirectChildCount, itemDirectChildCount, wildcardPolicy)) {
+        path += '/'
+        isWildcarded = true
+      }
+    }
+
+    const invalidationPath = normalizeInvalidationPath(path, isWildcarded)
     invalidationPaths.push(invalidationPath)
   })
 
