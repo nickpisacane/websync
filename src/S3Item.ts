@@ -38,7 +38,10 @@ export default class S3Item implements Item {
 
     let ret: Buffer
     const body = objectOutput.Body
-    if (typeof body === 'string') {
+
+    if (body instanceof Buffer) {
+      ret = body
+    } else if (typeof body === 'string') {
       ret = new Buffer(body)
     } else if (body instanceof Uint8Array) {
       ret = Buffer.from(body.buffer)
