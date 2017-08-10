@@ -65,6 +65,12 @@ export interface CloudFrontInvalidatorOptions {
   ids?: string[]
 }
 
+export interface InvalidateResponse {
+  committed: boolean
+  count: number
+  reason: 'NO_PATHS' | 'NO_DISTS' | 'COMMITTED'
+}
+
 export default class CloudFrontInvalidator {
   public readonly bucketName: string
   public readonly paths: string[]
@@ -74,7 +80,7 @@ export default class CloudFrontInvalidator {
 
   constructor(options: CloudFrontInvalidatorOptions) {
     this.bucketName = options.bucketName
-    this.paths = options.paths
+    this.paths = options.paths.filter((path, i) => options.paths.indexOf(path) === i)
     if (options.ids) {
       this.ids = options.ids
     }
@@ -85,13 +91,27 @@ export default class CloudFrontInvalidator {
     return distributions.length * this.paths.length > 1000
   }
 
-  public async invalidate(enabledOnly: boolean = true) {
-    if (!this.paths.length) return
+  public async invalidate(enabledOnly: boolean = true): Promise<InvalidateResponse> {
+    if (!this.paths.length) {
+      return {
+        committed: false,
+        count: 0,
+        reason: 'NO_PATHS',
+      }
+    }
 
     const distributions = (await this.getDistributions()).filter(dist => {
       if (enabledOnly) return dist.Enabled
       return true
     })
+
+    if (!distributions.length) {
+      return {
+        committed: false,
+        count: 0,
+        reason: 'NO_DISTS',
+      }
+    }
 
     await Promise.all(distributions.map(dist => {
       return cf.createInvalidation({
@@ -105,6 +125,12 @@ export default class CloudFrontInvalidator {
         },
       } as CloudFront.CreateInvalidationRequest).promise()
     }))
+
+    return {
+      committed: true,
+      count: distributions.length * this.paths.length,
+      reason: 'COMMITTED',
+    }
   }
 
   public async getDistributions(): Promise<CloudFront.DistributionSummary[]> {
