@@ -86,6 +86,8 @@ export default class CloudFrontInvalidator {
   }
 
   public async invalidate(enabledOnly: boolean = true) {
+    if (!this.paths.length) return
+
     const distributions = (await this.getDistributions()).filter(dist => {
       if (enabledOnly) return dist.Enabled
       return true
