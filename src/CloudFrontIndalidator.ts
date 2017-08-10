@@ -35,10 +35,15 @@ export async function listDistributions(): Promise<CloudFront.DistributionSummar
   return distributions
 }
 
-export async function findDistributions(
-  bucketName: string,
-  ids: string[] = []
-): Promise<CloudFront.DistributionSummary[]> {
+export interface FindDistributionsOptions {
+  bucketName?: string
+  ids?: string[]
+}
+
+export async function findDistributions({
+  bucketName = '',
+  ids = [],
+}: FindDistributionsOptions): Promise<CloudFront.DistributionSummary[]> {
   const distributions = await listDistributions()
   const domainName = bucketToDomain(bucketName)
 
@@ -81,11 +86,10 @@ export default class CloudFrontInvalidator {
   }
 
   public async invalidate(enabledOnly: boolean = true) {
-    const distributions = (await findDistributions(this.bucketName, this.ids)).filter(dist => {
+    const distributions = (await this.getDistributions()).filter(dist => {
       if (enabledOnly) return dist.Enabled
       return true
     })
-
 
     await Promise.all(distributions.map(dist => {
       return cf.createInvalidation({
@@ -103,7 +107,14 @@ export default class CloudFrontInvalidator {
 
   public async getDistributions(): Promise<CloudFront.DistributionSummary[]> {
     if (!this.distributions) {
-      this.distributions = await findDistributions(this.bucketName, this.ids)
+      const options: FindDistributionsOptions = {}
+      // Explicit ids overrides bucketName
+      if (this.ids.length) {
+        options.ids = this.ids
+      } else {
+        options.bucketName = this.bucketName
+      }
+      this.distributions = await findDistributions(options)
     }
 
     return this.distributions
