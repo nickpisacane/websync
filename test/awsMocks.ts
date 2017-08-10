@@ -1,12 +1,30 @@
-import { config, S3, Request, AWSError } from 'aws-sdk'
+import { config, S3, Request, AWSError, CloudFront } from 'aws-sdk'
+import * as AWS from 'aws-sdk' // used to get `apiLoader`
 import * as faker from 'faker'
 import * as mime from 'mime'
+import * as _ from 'lodash'
+import * as sinon from 'sinon'
 
 config.update({
   accessKeyId: 'NOT AN ACCESS KEY',
   secretAccessKey: 'NOT A SECRET KEY',
   region: 'us-east-1',
 })
+
+function awsNotMockedMethod(params?: any, callback?: any): any {
+  const err = new Error('Method not mocked')
+
+  let _callback: any
+  if (params && typeof params === 'function') _callback = params
+  if (callback && typeof callback === 'function') _callback = callback
+  if (_callback) {
+    return _callback(err)
+  }
+
+  return {
+    promise: () => Promise.reject(err),
+  }
+}
 
 export interface MockS3Object {
   Key: string
@@ -174,3 +192,131 @@ const patchMethods = [
 ]
 
 patchMethods.forEach(methodName => patchS3Method(methodName))
+
+const mockedS3Methods = patchMethods.concat(['createBucket'])
+const s3Proto = S3.prototype as any
+const s3API = (AWS as any).apiLoader.services.s3['2006-03-01'].operations
+Object.keys(s3API).forEach(key => {
+  key = _.camelCase(key)
+  if (!~mockedS3Methods.indexOf(key)) {
+    s3Proto[key] = awsNotMockedMethod
+  }
+})
+s3Proto.validateService = () => {}
+
+// CloudFront Mocks for:
+// cloudFront.listDistributions
+// cloudFront.createInvalidation
+
+export interface MockCloudFrontDistribution {
+  id: string
+  bucketOrigin?: string
+  enabled: boolean
+}
+
+export let distributions: MockCloudFrontDistribution[] = []
+
+export const clearDistributions = () => { distributions = [] }
+
+export const createDistribution = (options: Partial<MockCloudFrontDistribution>): MockCloudFrontDistribution => {
+  const id = faker.random.uuid()
+  const dist: MockCloudFrontDistribution = Object.assign({
+    id,
+    enabled: !!options.enabled,
+  }, options)
+
+  distributions.push(dist)
+
+  return dist
+}
+
+CloudFront.prototype.listDistributions = function(params: any = {}, callback?: any): Request<CloudFront.ListDistributionsResult, AWSError> {
+  const p = params as CloudFront.ListDistributionsRequest
+  const maxItems = p.MaxItems ? parseInt(p.MaxItems, 10) : 2
+
+  let startIndex = 0
+  if (p.Marker) {
+    const index = _.findIndex(distributions, { id: p.Marker })
+    if (~index) {
+      startIndex = index + 1
+    }
+  }
+
+  const dists = distributions.slice(startIndex, startIndex + maxItems)
+  const last: MockCloudFrontDistribution | undefined = _.last(dists)
+  const globalLast = _.last(distributions)
+
+  const result = {
+    DistributionList: {
+      Marker: p.Marker,
+      NextMarker: last ? last.id : '',
+      MaxItems: maxItems,
+      IsTruncated: last && globalLast ? last.id !== globalLast.id : false,
+      Quantity: dists.length,
+      Items: dists.map((dist): CloudFront.DistributionSummary => {
+        const ret = {
+          Id: dist.id,
+          ARN: 'NOT AN ARN',
+          Status: 'Deployed',
+          Enabled: dist.enabled,
+        } as CloudFront.DistributionSummary
+
+        if (dist.bucketOrigin) {
+          ret.Origins = {
+            Quantity: 1,
+            Items: [
+              {
+                Id: faker.random.uuid(),
+                DomainName: `${dist.bucketOrigin}.s3.amazonaws.com`,
+              },
+            ],
+          }
+        }
+
+        return ret
+      }),
+    },
+  } as CloudFront.ListDistributionsRequest
+
+  const request = {
+    promise: () => Promise.resolve(result),
+  } as Request<CloudFront.ListDistributionsResult, AWSError>
+
+  return request
+}
+
+export const createInvalidationStub = sinon.stub()
+
+CloudFront.prototype.createInvalidation = function(params?: any, callback?: any): Request<CloudFront.CreateInvalidationResult, AWSError> {
+  const p = params as CloudFront.CreateInvalidationRequest
+  createInvalidationStub(params)
+
+  const result: CloudFront.CreateInvalidationResult = {
+    Location: 'NOT A LOCATION',
+    Invalidation: {
+      Id: faker.random.uuid(),
+      Status: 'Completed',
+      CreateTime: new Date(),
+      InvalidationBatch: params.InvalidationBatch,
+    },
+  }
+
+  return {
+    promise: () => Promise.resolve(result),
+  } as Request<CloudFront.CreateInvalidationResult, AWSError>
+}
+
+const mockedCloudFrontMethods = [
+  'listDistributions',
+  'createInvalidation',
+]
+
+const cloudFrontProto = CloudFront.prototype as any
+const cloudFrontAPI = (AWS as any).apiLoader.services.cloudfront['2017-03-25']
+Object.keys(cloudFrontAPI.operations).forEach(key => {
+  key = _.camelCase(key)
+  if (!~mockedCloudFrontMethods.indexOf(key)) {
+    cloudFrontProto[key] = awsNotMockedMethod
+  }
+})
+cloudFrontProto.validateService = function() {}
