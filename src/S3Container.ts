@@ -1,5 +1,7 @@
+import * as path from 'path'
 import { S3 } from 'aws-sdk'
 import * as minimatch from 'minimatch'
+import S3Prefixer from './S3Prefixer'
 import S3Item from './S3Item'
 import {
   Item,
@@ -13,12 +15,12 @@ import {
 const s3 = new S3()
 const MAX_LIST_OBJECTS = 1000
 
-export default class S3Container implements Container {
+export default class S3Container extends S3Prefixer implements Container {
   private bucketName: string
-
   public type: ContainerType = 'S3'
 
-  constructor(bucketName: string) {
+  constructor(bucketName: string, prefix: string = '') {
+    super(prefix)
     this.bucketName = bucketName
   }
 
@@ -30,6 +32,7 @@ export default class S3Container implements Container {
     while (!done) {
       const params: S3.ListObjectsV2Request = {
         Bucket: this.bucketName,
+        Prefix: this.prefix,
       }
       if (continuationToken) {
         params.ContinuationToken = continuationToken
@@ -47,6 +50,12 @@ export default class S3Container implements Container {
       }
     }
 
+    objects.forEach(obj => {
+      if (obj.Key) {
+        obj.Key = this.withoutPrefix(obj.Key)
+      }
+    })
+
     return objects
   }
 
@@ -58,24 +67,26 @@ export default class S3Container implements Container {
     if (options.exclude) {
       objects = objects.filter(obj => obj.Key && !minimatch(obj.Key, options.exclude as string))
     }
+
     return objects.map(obj => new S3Item(this.bucketName, obj))
   }
 
   public async putItem(item: Item, options?: PutItemOptions): Promise<Item> {
     const body = await item.read()
     const s3Options = options && options.s3Options ? options.s3Options : {}
+    const key = this.withPrefix(item.key)
     const params: S3.PutObjectRequest = Object.assign(s3Options, {
       Bucket: this.bucketName,
-      Key: item.key,
+      Key: key,
       Body: body,
     })
     const objectOutput = await s3.putObject(params).promise()
     const objectHead = await s3.headObject({
       Bucket: this.bucketName,
-      Key: item.key,
+      Key: key,
     }).promise()
     const s3Object: S3.Object = {
-      Key: item.key,
+      Key: key,
       LastModified: objectHead.LastModified,
       Size: body.length,
     }
@@ -86,9 +97,10 @@ export default class S3Container implements Container {
 
   public async delItem(item: Item, options?: DelItemOptions): Promise<void> {
     const s3Options = options && options.s3Options ? options.s3Options : {}
+    const key = this.withPrefix(item.key)
     const params: S3.DeleteObjectRequest = Object.assign(s3Options, {
       Bucket: this.bucketName,
-      Key: item.key,
+      Key: key,
     })
     await s3.deleteObject(params).promise()
   }
