@@ -1,9 +1,10 @@
 import { S3 } from 'aws-sdk'
 import { Item, Container } from './types'
+import S3Prefixer from './S3Prefixer'
 
 const s3 = new S3()
 
-export default class S3Item implements Item {
+export default class S3Item extends S3Prefixer implements Item {
   private s3Object: S3.Object
   private bucketName: string
 
@@ -12,9 +13,12 @@ export default class S3Item implements Item {
   public size: number
   public isSymbolicLink: boolean
 
-  constructor(bucketName: string, s3Object: S3.Object) {
+  constructor(bucketName: string, s3Object: S3.Object, prefix: string = '') {
+    super(prefix)
+
     this.bucketName = bucketName
     this.s3Object = s3Object
+
     if (!s3Object.Key) {
       throw new Error(`S3Item: Key is required on s3Object`)
     }
@@ -33,7 +37,7 @@ export default class S3Item implements Item {
   private async getBody(): Promise<Buffer> {
     const objectOutput = await s3.getObject({
       Bucket: this.bucketName,
-      Key: this.s3Object.Key as string,
+      Key: this.withPrefix(this.s3Object.Key as string),
     }).promise()
 
     let ret: Buffer
