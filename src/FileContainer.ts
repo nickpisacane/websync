@@ -8,8 +8,7 @@ import FileItem from './FileItem'
 
 export default class FileContainer implements Container {
   private baseDirectory: string
-
-  public type: ContainerType = 'S3'
+  public type: ContainerType = 'FILE'
 
   constructor(baseDirectory: string) {
     this.baseDirectory = baseDirectory
