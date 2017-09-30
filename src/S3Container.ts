@@ -104,4 +104,8 @@ export default class S3Container extends S3Prefixer implements Container {
     })
     await s3.deleteObject(params).promise()
   }
+
+  public getBucketName(): string {
+    return this.bucketName
+  }
 }
