@@ -16,7 +16,7 @@ export interface Item {
   read(): Promise<Buffer>
 }
 
-export type ContainerType = 'LOCAL' | 'S3'
+export type ContainerType = 'FILE' | 'S3'
 
 export interface ListItemsOptions extends FilterOptions {
 }
