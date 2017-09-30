@@ -1,4 +1,4 @@
-import { Container, Item, ItemDiffType, ItemDiff } from './types'
+import { Container, Item, ItemDiffType, ItemDiff, FilterOptions } from './types'
 
 export type DiffKey = 'modtime' | 'size'
 
@@ -20,9 +20,10 @@ const shouldUpdate = (source: Item, target: Item, diffKey: DiffKey): boolean => 
 export default async function diff(
   source: Container,
   target: Container,
-  diffKey: DiffKey = 'modtime'
+  diffKey: DiffKey = 'modtime',
+  filterOptions?: FilterOptions
 ): Promise<ItemDiff[]> {
-  const sourceItems = await source.listItems()
+  const sourceItems = await source.listItems(filterOptions)
   const targetItems = await target.listItems()
   const diffs: ItemDiff[] = []
 
