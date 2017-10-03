@@ -28,4 +28,14 @@ export default class Stats implements StatsObject {
   public toString({ colors = true }: { colors: boolean }): string {
     return 'TODO'
   }
+
+  public clone(): Stats {
+    return new Stats({
+      diffs: this.diffs,
+      distributions: this.distributions,
+      invalidations: this.invalidations,
+      constitutesPayment: this.constitutesPayment,
+      completed: this.completed,
+    })
+  }
 }
