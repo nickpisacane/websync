@@ -23,7 +23,7 @@ export class MockItem implements Item {
 }
 
 const randomContainerType = (): ContainerType =>
-  ['LOCAL' as ContainerType, 'S3' as ContainerType][Math.floor(Math.random() * 2)]
+  ['FILE' as ContainerType, 'S3' as ContainerType][Math.floor(Math.random() * 2)]
 
 export class MockContainer implements Container {
   private items: Item[] = []
@@ -110,7 +110,7 @@ export class MockSuite {
         key: 'i/am/deleted.css',
       }),
     ]
-    const sourceContainer = new MockContainer({ type: 'LOCAL' })
+    const sourceContainer = new MockContainer({ type: 'FILE' })
     const targetContainer = new MockContainer({ type: 'S3' })
 
     sourceContainer.setItems(sourceItems)
