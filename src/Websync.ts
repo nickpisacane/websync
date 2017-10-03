@@ -14,22 +14,25 @@ import generationInvalidations, { WildcardPolicy } from './generateInvalidations
 const isS3Container = (container: Container): container is S3Container =>
   container.type === 'S3'
 
-export interface SyncerPutOptions {
+export interface WebsyncPutModifiers {
   [key: string]: S3PutModifier
 }
 
-export interface SyncerDeleteOptions {
+export interface WebsyncDeleteModifiers {
   [key: string]: S3DeleteModifier
 }
 
-export interface SyncerOptions {
+export interface WebsyncOptions {
   source: string
   target: string
   include?: string
   exclude?: string
   diffBy?: DiffKey
-  putOptions?: SyncerPutOptions
-  deleteOptions?: SyncerDeleteOptions
+  putOptions?: WebsyncPutModifiers
+  deleteOptions?: WebsyncDeleteModifiers
+  wildcardPolicy?: WildcardPolicy
+  wildcardAll?: boolean
+  invalidateDeletes?: boolean
 }
 
 export default class Websync {
@@ -45,8 +48,6 @@ export default class Websync {
   private wildcardAll: boolean = false
   private invalidateDeletes: boolean = true
 
-  private errorOnInvalidationPayment: boolean = true
-
   private initialized: boolean = false
   private completed: boolean = false
 
@@ -56,7 +57,7 @@ export default class Websync {
   private invalidations: string[] | undefined
   private invalidator: CloudFrontInvalidator | undefined
 
-  constructor(options: SyncerOptions) {
+  constructor(options: WebsyncOptions) {
     this.source = parseContainerFromURL(options.source)
     this.target = parseContainerFromURL(options.target)
     this.filterOptions = { include: options.include, exclude: options.exclude }
@@ -65,6 +66,15 @@ export default class Websync {
 
     if (options.diffBy) {
       this.diffBy = options.diffBy
+    }
+    if (options.wildcardPolicy) {
+      this.wildcardPolicy = options.wildcardPolicy
+    }
+    if (typeof options.wildcardAll === 'boolean') {
+      this.wildcardAll = options.wildcardAll
+    }
+    if (typeof options.invalidateDeletes === 'boolean') {
+      this.invalidateDeletes = options.invalidateDeletes
     }
   }
 
