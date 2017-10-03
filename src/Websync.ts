@@ -1,5 +1,4 @@
-import { S3, CloudFront } from 'aws-sdk'
-import * as minimatch from 'minimatch'
+import { S3 } from 'aws-sdk'
 
 import { Container, S3PutModifier, S3DeleteModifier, FilterOptions, ItemDiff } from './types'
 import S3Container from './S3Container'
@@ -56,7 +55,6 @@ export default class Websync {
   private transfer: Transfer
   private invalidations: string[] | undefined
   private invalidator: CloudFrontInvalidator | undefined
-  private cfDistributions: CloudFront.DistributionSummary[] | undefined
 
   constructor(options: SyncerOptions) {
     this.source = parseContainerFromURL(options.source)
