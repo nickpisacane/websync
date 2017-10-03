@@ -131,12 +131,17 @@ export class MockS3Bucket {
     }))
     const NextContinuationToken = Contents.length
       ? Contents[Contents.length - 1].Key
-      : this.objects[this.objects.length - 1].Key
+      : this.objects.length
+        ? this.objects[this.objects.length - 1].Key
+        : ''
+    const IsTruncated = Contents.length && this.objects.length
+      ? Contents[Contents.length - 1].Key !== this.objects[this.objects.length - 1].Key
+      : false
     const ret: S3.ListObjectsV2Output = {
       MaxKeys: maxKeys,
       KeyCount: Contents.length,
       Contents: Contents,
-      IsTruncated: Contents[Contents.length - 1].Key !== this.objects[this.objects.length - 1].Key,
+      IsTruncated,
       NextContinuationToken,
     }
 
