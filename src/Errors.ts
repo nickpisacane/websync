@@ -3,6 +3,7 @@ export const ErrorCodes = {
   TooManyInvalidations: 2,
   InvalidationsFailed: 3,
   AlreadyInitialized: 4,
+  AlreadyCompleted: 5,
 }
 
 export class Base extends Error {
@@ -44,5 +45,11 @@ export class InvalidationsFailed extends Base {
 export class AlreadyInitialized extends Base {
   constructor() {
     super(`Websync: Already initialized.`, ErrorCodes.AlreadyInitialized)
+  }
+}
+
+export class AlreadyCompleted extends Base {
+  constructor() {
+    super(`Websync: Already completed.`, ErrorCodes.AlreadyCompleted)
   }
 }
