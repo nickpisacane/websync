@@ -149,7 +149,7 @@ export default class Websync {
 
     if (this.invalidator) {
       try {
-        this.invalidator.invalidate()
+        await this.invalidator.invalidate()
       } catch (err) {
         throw new Errors.InvalidationsFailed(err)
       }
