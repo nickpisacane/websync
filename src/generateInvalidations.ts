@@ -92,6 +92,10 @@ export default function generateInvalidations({
   const itemTree = new PathTree(targetItems.map(item => item.key))
   const diffTree = new PathTree(diffs.map(d => d.key))
   const invalidationPaths: string[] = []
+  const absoluteDiffMap = diffs.reduce((map, diff) => {
+    map[diff.key] = true
+    return map
+  }, {} as { [key: string]: boolean })
 
   diffTree.walk('/', diffNode => {
     if (isInvalidated(diffNode.path, invalidationPaths) || diffNode.name === '%ROOT%') {
@@ -107,10 +111,9 @@ export default function generateInvalidations({
     const itemChildCount = itemTree.countAllChildren(itemNode)
     const diffDirectChildCount = diffTree.countDirectChildren(diffNode)
     const itemDirectChildCount = itemTree.countDirectChildren(itemNode)
-    let isWildcarded = wildcardAll || shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
+    let isWildcarded = shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
     let path = diffNode.path
 
-    // TODO: Make sure this makes sense.
     // If the `diffNode`'s path is not wildcarded on the basis of ALL of its children, then check
     // if its path on the basis of DIRECT children can be wildcarded. The result will be a path
     // with a forward slash BEFORE the wildcard (see the Amazon Doc Reference) as this will only
@@ -122,7 +125,15 @@ export default function generateInvalidations({
       }
     }
 
-    const invalidationPath = normalizeInvalidationPath(path, isWildcarded)
+    // If the path is not wildcarded by now, the only case in which this path should be invalidated
+    // is if it is an absolute path of a Transfer Operation, i.e. it's being invalidated itself.
+    // Thus, if it's not in `absoluteDiffMap`, then don't invalidate because it means that it
+    // has a child that is being invalided.
+    if (!isWildcarded && !absoluteDiffMap[itemNode.path]) {
+      return
+    }
+
+    const invalidationPath = normalizeInvalidationPath(path, isWildcarded || wildcardAll)
     invalidationPaths.push(invalidationPath)
   })
 

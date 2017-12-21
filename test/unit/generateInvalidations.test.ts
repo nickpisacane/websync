@@ -251,4 +251,49 @@ describe('generateInvalidations', () => {
     expect(invalidations).to.have.length(1)
     expect(invalidations[0]).to.equal('/foo.txt*')
   })
+
+  it('it does not invalidate parent paths when unnecessary', async () => {
+    const test = createInvalidationTest([
+      {
+        type: 'UPDATE',
+        key: 'foo/bar/bang.txt',
+      },
+      {
+        type: 'STATIC',
+        key: 'foo/baz.txt',
+      },
+      {
+        type: 'STATIC',
+        key: 'foo/bar/boo.txt',
+      },
+    ])
+
+    const invalidations = await test('majority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/foo/bar/bang.txt')
+  })
+
+  it('it does not invalidate parent paths when unnecessary (wildcardAll = true)', async () => {
+    const test = createInvalidationTest([
+      {
+        type: 'UPDATE',
+        key: 'foo/bar/bang.txt',
+      },
+      {
+        type: 'STATIC',
+        key: 'foo/baz.txt',
+      },
+      {
+        type: 'STATIC',
+        key: 'foo/bar/boo.txt',
+      },
+    ], {
+      wildcardAll: true,
+    })
+
+    const invalidations = await test('majority')
+    console.log(invalidations)
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/foo/bar/bang.txt*')
+  })
 })
