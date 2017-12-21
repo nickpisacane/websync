@@ -292,7 +292,6 @@ describe('generateInvalidations', () => {
     })
 
     const invalidations = await test('majority')
-    console.log(invalidations)
     expect(invalidations).to.have.length(1)
     expect(invalidations[0]).to.equal('/foo/bar/bang.txt*')
   })
