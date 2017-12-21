@@ -19,7 +19,11 @@ describe('Websync', () => {
 
     createDistribution({ bucketOrigin: 'websync-test' })
 
-    // TODO: Create some objects on "S3"
+    await s3.putObject({
+      Bucket: 'websync-test',
+      Body: new Buffer('hello, s3'),
+      Key: 'bang/deleteMe.txt',
+    }).promise()
   })
 
   after(() => {
@@ -34,8 +38,23 @@ describe('Websync', () => {
     })
 
     await websync.initialize()
+    expect(websync.constitutesPayment()).to.equal(false)
+    const preStats = websync.getStats()
+    expect(preStats.completed).to.equal(false)
+    expect(preStats.distributions).to.have.length(1)
+    expect(preStats.invalidations).to.deep.equal([
+      '/bang*',
+    ])
     const stats = await websync.sync()
-
-    // TODO: validate results
+    expect(stats.completed).to.equal(true)
+    try {
+      const r = await s3.getObject({
+        Bucket: 'websync-test',
+        Key: 'bang/deleteMe.txt',
+      }).promise()
+      throw new Error('FAILED')
+    } catch (err) {
+      expect(err.message).to.equal('NoSuchKey: The specified key does not exist.')
+    }
   })
 })
