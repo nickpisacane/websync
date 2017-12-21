@@ -78,7 +78,7 @@ export default class Websync {
     }
   }
 
-  public async initialize(): Promise<Stats> {
+  public async initialize(): Promise<void> {
     if (this.initialized) {
       throw new Errors.AlreadyInitialized()
     }
@@ -132,8 +132,13 @@ export default class Websync {
     }
 
     this.initialized = true
+  }
 
-    return this.stats.clone()
+  public constitutesPayment(): boolean {
+    if (!this.initialized) {
+      throw new Error(`Websync: Websync must be initialized before calling \`constituesPayment\``)
+    }
+    return this.stats.constitutesPayment
   }
 
   public async sync(): Promise<Stats> {
@@ -157,6 +162,13 @@ export default class Websync {
 
     this.completed = this.stats.completed = true
 
+    return this.stats.clone()
+  }
+
+  public getStats(): Stats {
+    if (!this.initialized) {
+      throw new Error(`Websync: Websync must be initialized before calling \`getStats\``)
+    }
     return this.stats.clone()
   }
 }

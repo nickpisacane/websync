@@ -33,8 +33,8 @@ describe('Websync', () => {
       target: 's3://websync-test',
     })
 
-    let stats = await websync.initialize()
-    stats = await websync.sync()
+    await websync.initialize()
+    const stats = await websync.sync()
 
     // TODO: validate results
   })
