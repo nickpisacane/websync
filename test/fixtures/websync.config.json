@@ -1,0 +1,6 @@
+{
+    "diffBy": "modtime",
+    "invalidateDeletes": false,
+    "include": "foo/**/*",
+    "exclude": "bar/**/*.bang"
+}
