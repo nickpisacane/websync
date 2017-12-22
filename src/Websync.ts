@@ -109,6 +109,7 @@ export default class Websync {
       diffs: this.diffs,
       completed: false,
       constitutesPayment: false,
+      invalidated: false,
     })
 
     if (isS3Container(this.target)) {
@@ -141,7 +142,7 @@ export default class Websync {
     return this.stats.constitutesPayment
   }
 
-  public async sync(): Promise<Stats> {
+  public async sync(invalidate: boolean = true): Promise<Stats> {
     if (this.completed) {
       throw new Errors.AlreadyCompleted()
     }
@@ -152,7 +153,7 @@ export default class Websync {
       throw new Errors.TransferFailed(err)
     }
 
-    if (this.invalidator) {
+    if (this.invalidator && invalidate) {
       try {
         await this.invalidator.invalidate()
       } catch (err) {
@@ -160,6 +161,7 @@ export default class Websync {
       }
     }
 
+    this.stats.invalidated = invalidate
     this.completed = this.stats.completed = true
 
     return this.stats.clone()
