@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 
-import Transfer from '../../src/Transfer'
+import Transfer, { TransferItemCompleteEvent } from '../../src/Transfer'
 import diff from '../../src/diff'
 import {
   MockSuite,
@@ -15,6 +15,11 @@ describe('Transfer', () => {
       source: suite.sourceContainer,
       target: suite.targetContainer,
       diffs,
+    })
+    const itemCompletes: string[] = []
+
+    transfer.on('itemComplete', (event: TransferItemCompleteEvent) => {
+      itemCompletes.push(event.item.key)
     })
 
     await transfer.complete()
@@ -32,6 +37,10 @@ describe('Transfer', () => {
         const targetItem = findItem(sourceItem.key, targetItems)
         return !!sourceItem && !!targetItem && sourceItem.modtime === targetItem.modtime
       })
+    ).to.equal(true)
+
+    expect(
+      diffs.every(diff => !!~itemCompletes.indexOf(diff.key))
     ).to.equal(true)
   })
 })
