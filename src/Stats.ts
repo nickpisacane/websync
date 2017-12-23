@@ -9,6 +9,7 @@ export interface StatsObject {
   constitutesPayment: boolean
   completed: boolean
   invalidated: boolean
+  time: number
 }
 
 export default class Stats implements StatsObject {
@@ -18,6 +19,7 @@ export default class Stats implements StatsObject {
   public constitutesPayment: boolean
   public completed: boolean
   public invalidated: boolean
+  public time: number
 
   constructor(stats: Partial<StatsObject> = {}) {
     this.update(stats)
