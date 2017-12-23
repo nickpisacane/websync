@@ -57,6 +57,12 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@types/p-queue/-/p-queue-1.1.0.tgz#7c8ddac385ca9e1ae8bb3f7a8814fccaae61b60e"
 
+"@types/progress@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@types/progress/-/progress-2.0.1.tgz#af866001a836dbd28a6656e4b335d333bad7faf2"
+  dependencies:
+    "@types/node" "*"
+
 "@types/sinon@^2.3.3":
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-2.3.3.tgz#1f20b96f954b4997a09c1c0a20264aaba6b00147"
@@ -506,6 +512,10 @@ pathval@^1.0.0:
 pinkie@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
+
+progress@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.0.tgz#8a1be366bf8fc23db2bd23f10c6fe920b4389d1f"
 
 punycode@1.3.2:
   version "1.3.2"
