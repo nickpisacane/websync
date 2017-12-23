@@ -171,6 +171,9 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   }
 
   public async sync(invalidate: boolean = true): Promise<Stats> {
+    const startTime = Date.now()
+    this.stats.invalidated = invalidate
+
     if (this.completed) {
       throw new Errors.AlreadyCompleted()
     }
@@ -184,12 +187,13 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     if (this.invalidator && invalidate) {
       try {
         await this.invalidator.invalidate()
+        this.stats.invalidated = true
       } catch (err) {
         throw new Errors.InvalidationsFailed(err)
       }
     }
 
-    this.stats.invalidated = invalidate
+    this.stats.time = Date.now() - startTime
     this.completed = this.stats.completed = true
 
     return this.stats.clone()
