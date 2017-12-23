@@ -98,6 +98,11 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     if (typeof options.invalidateDeletes === 'boolean') {
       this.invalidateDeletes = options.invalidateDeletes
     }
+
+    this.stats = new Stats({
+      source: options.source,
+      target: options.target,
+    })
   }
 
   public async initialize(): Promise<void> {
@@ -105,7 +110,6 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
       throw new Errors.AlreadyInitialized()
     }
 
-    this.stats = new Stats()
     this.diffs = await diff(this.source, this.target, this.diffBy, this.filterOptions)
     this.transfer = new Transfer({
       source: this.source,
@@ -133,7 +137,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
         }, data) as WebsyncTransferProgressEvent)
       })
 
-    this.stats = new Stats({
+    this.stats.update({
       diffs: this.diffs,
       completed: false,
       constitutesPayment: false,
