@@ -76,7 +76,7 @@ const main = async () => {
   }
 
   const stats = await websync.sync(shouldInvalidate)
-  process.stdout.write(stats.toString({ colors: true }))
+  console.log(stats.toString())
 }
 
 main()
