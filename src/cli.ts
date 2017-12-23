@@ -1,7 +1,8 @@
 import * as readLine from 'readline'
 import * as minimist from 'minimist'
-import Websync, { WebsyncOptions } from './Websync'
+import Websync, { WebsyncOptions, WebsyncTransferProgressEvent } from './Websync'
 import Config from './Config'
+import progressBar from './utils/progressBar'
 
 const help = `
 websync [source] [target] [...options]
@@ -52,7 +53,16 @@ const main = async () => {
   } catch (err) {
     return showHelp()
   }
+
+  const progress = progressBar('|:bar| :success :key :time ms')
   const websync = new Websync(options)
+  websync.on('progress', (event: WebsyncTransferProgressEvent) => {
+    progress(event.progress, {
+      success: 'TODO',
+      key: event.item.key,
+      time: `${event.time}`,
+    })
+  })
   await websync.initialize()
 
   let shouldInvalidate = true
