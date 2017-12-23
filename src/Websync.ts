@@ -1,8 +1,16 @@
+import { EventEmitter } from 'events'
 import { S3 } from 'aws-sdk'
 
-import { Container, S3PutModifier, S3DeleteModifier, FilterOptions, ItemDiff } from './types'
+import {
+  Container,
+  S3PutModifier,
+  S3DeleteModifier,
+  FilterOptions,
+  ItemDiff,
+  Item,
+} from './types'
 import S3Container from './S3Container'
-import Transfer from './Transfer'
+import Transfer, { TransferItemCompleteEvent } from './Transfer'
 import CloudFrontInvalidator from './CloudFrontIndalidator'
 import Stats from './Stats'
 import GlobTable from './GlobTable'
@@ -22,6 +30,15 @@ export interface WebsyncDeleteModifiers {
   [key: string]: S3DeleteModifier
 }
 
+export interface WebsyncTransferProgressEvent extends TransferItemCompleteEvent {
+  progress: number
+}
+
+export interface WebsyncEmitter {
+  emit(event: 'progress', eventData: WebsyncTransferProgressEvent): boolean
+  on(event: 'progress', listener: (eventData: WebsyncTransferProgressEvent) => void): this
+}
+
 export interface WebsyncOptions {
   source: string
   target: string
@@ -35,7 +52,7 @@ export interface WebsyncOptions {
   invalidateDeletes?: boolean
 }
 
-export default class Websync {
+export default class Websync extends EventEmitter implements WebsyncEmitter {
   private source: Container
   private target: Container
   private filterOptions: FilterOptions
@@ -57,12 +74,17 @@ export default class Websync {
   private invalidations: string[] | undefined
   private invalidator: CloudFrontInvalidator | undefined
 
+  private completeCount = 0
+
   constructor(options: WebsyncOptions) {
+    super()
+
     this.source = parseContainerFromURL(options.source)
     this.target = parseContainerFromURL(options.target)
     this.filterOptions = { include: options.include, exclude: options.exclude }
     this.putOptionsTable = new GlobTable<S3PutModifier>(options.putOptions || {})
     this.deleteOptionsTable = new GlobTable<S3DeleteModifier>(options.deleteOptions || {})
+    this.completeCount = 0
 
     if (options.diffBy) {
       this.diffBy = options.diffBy
@@ -103,6 +125,12 @@ export default class Websync {
         if (opts) {
           Object.assign(options, opts)
         }
+      })
+      .on('itemComplete', (data: TransferItemCompleteEvent) => {
+        this.completeCount++
+        this.emit('progress', Object.assign({
+          progress: this.completeCount / this.diffs.length,
+        }, data) as WebsyncTransferProgressEvent)
       })
 
     this.stats = new Stats({
