@@ -76,6 +76,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   private invalidator: CloudFrontInvalidator | undefined
 
   private completeCount = 0
+  private bucketACL: string = 'public-read'
 
   constructor(options: WebsyncOptions) {
     super()
@@ -98,6 +99,9 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     }
     if (typeof options.invalidateDeletes === 'boolean') {
       this.invalidateDeletes = options.invalidateDeletes
+    }
+    if (options.bucketACL) {
+      this.bucketACL = options.bucketACL
     }
 
     this.stats = new Stats({
