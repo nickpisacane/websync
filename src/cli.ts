@@ -1,7 +1,8 @@
 import * as readLine from 'readline'
 import * as minimist from 'minimist'
+import * as AWS from 'aws-sdk'
 import Websync, { WebsyncOptions, WebsyncTransferProgressEvent } from './Websync'
-import Config from './Config'
+import Config, { ConfigFile } from './Config'
 import progressBar from './utils/progressBar'
 
 const help = `
@@ -11,6 +12,7 @@ websync [...options]
 Options:
   -h, --help           Show this message
   -y, --yes            Skip prompts with a "yes" by default
+  --region             AWS Region
   --config             Provide a configuration file (js or json)
   --include            Pattern to include
   --exclude            Patter to exclude
@@ -47,11 +49,15 @@ export default async () => {
     argv,
     configFileName,
   })
-  let options: WebsyncOptions
+  let options: ConfigFile
   try {
     options = await config.resolve()
   } catch (err) {
     return showHelp()
+  }
+
+  if (options.region) {
+    AWS.config.update({ region: options.region })
   }
 
   const progress = progressBar('|:bar| :success :key :time ms')

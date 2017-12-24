@@ -8,6 +8,10 @@ const defaultConfigNames: string[] = [
   'websync.json',
 ]
 
+export interface ConfigFile extends WebsyncOptions {
+  region?: string
+}
+
 export interface ConfigOptions {
   argv?: string[]
   configFileName?: string
@@ -32,7 +36,7 @@ export default class Config {
     return ''
   }
 
-  private async readConfigFile(): Promise<Partial<WebsyncOptions>> {
+  private async readConfigFile(): Promise<Partial<ConfigFile>> {
     if (!this.configFileName) {
       this.configFileName = await this.getDefaultConfigFileName()
     }
@@ -40,13 +44,13 @@ export default class Config {
       return {}
     }
     console.log('requiring: ', this.configFileName)
-    const opts = require(Path.resolve(this.configFileName)) as Partial<WebsyncOptions>
+    const opts = require(Path.resolve(this.configFileName)) as Partial<ConfigFile>
     return opts
   }
 
-  public async resolve(): Promise<WebsyncOptions> {
+  public async resolve(): Promise<ConfigFile> {
     const args = minimist(this.argv)
-    const opts: Partial<WebsyncOptions> = await this.readConfigFile()
+    const opts: Partial<ConfigFile> = await this.readConfigFile()
     console.log('OPTS: ', opts)
     console.log('ARGS: ', args)
     if (args._.length) {
@@ -79,6 +83,6 @@ export default class Config {
       throw new Error('Config: `source` and `target` options are required')
     }
     console.log('OPTS 2: ', opts)
-    return opts as WebsyncOptions
+    return opts as ConfigFile
   }
 }
