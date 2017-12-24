@@ -25,7 +25,7 @@ export class Node {
   }
 }
 
-type WalkFn = (node: Node) => void
+export type WalkFn = (node: Node) => void
 
 export default class PathTree {
   private root: Node
