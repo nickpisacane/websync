@@ -209,4 +209,16 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     }
     return this.stats.clone()
   }
+
+  public async targetExists(): Promise<boolean> {
+    if (!isS3Container(this.target)) return true
+    const bucket = this.target.getBucketName()
+    const s3 = new S3()
+    try {
+      await s3.headBucket({ Bucket: bucket }).promise()
+      return true
+    } catch (err) {
+      return false
+    }
+  }
 }
