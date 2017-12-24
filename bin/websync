@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+const websyncCLI = require('../build/cli').default
+
+websyncCLI()
+  .catch(err => {
+    process.nextTick(() => { throw err })
+  })

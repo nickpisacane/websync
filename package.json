@@ -12,6 +12,9 @@
     "test:unit": "NODE_ENV=test __TS_PROJECT_PATH__=./tsconfig.test.json ts-mocha --colors test/__setup__.ts test/unit/**/*.test.ts",
     "test:watch": "watch-run -i -p 'test/**/*.ts,src/**/*.ts' npm run test"
   },
+  "bin": {
+    "websync": "./bin/websync"
+  },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/chai": "^4.0.2",

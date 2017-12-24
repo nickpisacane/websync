@@ -35,7 +35,7 @@ const prompt = (msg: string): Promise<boolean> => new Promise((resolve, reject) 
   })
 })
 
-const main = async () => {
+export default async () => {
   const argv = process.argv.slice(2)
   const args = minimist(argv)
   if (args.h || args.help) {
@@ -78,5 +78,3 @@ const main = async () => {
   const stats = await websync.sync(shouldInvalidate)
   console.log(stats.toString())
 }
-
-main()
