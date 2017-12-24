@@ -6,7 +6,11 @@
       "es2015"
     ],
     "outDir": "./build",
-    "rootDir": "./",
-    "strict": true
-  }
+    "rootDir": "./src",
+    "strict": true,
+    "declaration": true
+  },
+  "include": [
+    "./src"
+  ]
 }
