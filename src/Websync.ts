@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { S3 } from 'aws-sdk'
+import { S3, config as AWSConfig } from 'aws-sdk'
 
 import {
   Container,
@@ -224,6 +224,21 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
       return true
     } catch (err) {
       return false
+    }
+  }
+
+  public async ensureTarget(): Promise<void> {
+    if (!isS3Container(this.target)) return
+    const exists = await this.targetExists()
+    if (!exists) {
+      const s3 = new S3()
+      const res = await s3.createBucket({
+        Bucket: this.target.getBucketName(),
+        ACL: this.bucketACL,
+        CreateBucketConfiguration: {
+          LocationConstraint: AWSConfig.region,
+        },
+      }).promise()
     }
   }
 }
