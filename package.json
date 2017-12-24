@@ -1,12 +1,13 @@
 {
   "name": "websync",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "./build/index.js",
+  "types": "./build",
   "license": "MIT",
   "scripts": {
     "lint": "tslint src/**/*.ts --fix",
     "test": "npm run test:unit",
-    "test:unit": "NODE_ENV=test ts-mocha --colors test/__setup__.ts test/unit/**/*.test.ts",
+    "test:unit": "NODE_ENV=test __TS_PROJECT_PATH__=./tsconfig.test.json ts-mocha --colors test/__setup__.ts test/unit/**/*.test.ts",
     "test:watch": "watch-run -i -p 'test/**/*.ts,src/**/*.ts' npm run test"
   },
   "devDependencies": {
