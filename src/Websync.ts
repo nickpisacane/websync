@@ -50,6 +50,7 @@ export interface WebsyncOptions {
   wildcardPolicy?: WildcardPolicy
   wildcardAll?: boolean
   invalidateDeletes?: boolean
+  bucketACL?: string
 }
 
 export default class Websync extends EventEmitter implements WebsyncEmitter {
