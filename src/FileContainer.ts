@@ -11,7 +11,7 @@ export default class FileContainer implements Container {
   public type: ContainerType = 'FILE'
 
   constructor(baseDirectory: string) {
-    this.baseDirectory = baseDirectory
+    this.baseDirectory = Path.resolve(baseDirectory)
   }
 
   private readAllFileNames(): Promise<string[]> {
