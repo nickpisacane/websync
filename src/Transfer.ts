@@ -79,8 +79,9 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
           if (diff.type === 'DELETE') {
             const s3Options: S3DeleteModifier = {}
             const targetItem = diff.target
+
             this.emit('delObject', targetItem.key, s3Options)
-            this.completeItem(
+            await this.completeItem(
               Date.now(),
               diff.type,
               targetItem,
@@ -89,8 +90,9 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
           } else {
             const s3Options: S3PutModifier = {}
             const sourceItem = diff.source
+
             this.emit('putObject', sourceItem.key, s3Options)
-            this.completeItem(
+            await this.completeItem(
               Date.now(),
               diff.type,
               sourceItem,
