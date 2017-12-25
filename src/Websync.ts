@@ -50,7 +50,6 @@ export interface WebsyncOptions {
   wildcardPolicy?: WildcardPolicy
   wildcardAll?: boolean
   invalidateDeletes?: boolean
-  bucketACL?: string
 }
 
 export default class Websync extends EventEmitter implements WebsyncEmitter {
@@ -76,7 +75,6 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   private invalidator: CloudFrontInvalidator | undefined
 
   private completeCount = 0
-  private bucketACL: string = 'public-read'
 
   constructor(options: WebsyncOptions) {
     super()
@@ -100,9 +98,6 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     if (typeof options.invalidateDeletes === 'boolean') {
       this.invalidateDeletes = options.invalidateDeletes
     }
-    if (options.bucketACL) {
-      this.bucketACL = options.bucketACL
-    }
 
     this.stats = new Stats({
       source: options.source,
@@ -124,10 +119,13 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
 
     this.transfer
       .on('putObject', (key: string, options: S3PutModifier) => {
+        console.log('K: ', key)
+        console.log('options: ', options)
         const opts = this.putOptionsTable.lookup(key)
         if (opts) {
           Object.assign(options, opts)
         }
+        console.log('opts: ', opts)
       })
       .on('deleteObject', (key: string, options: S3DeleteModifier) => {
         const opts = this.deleteOptionsTable.lookup(key)
@@ -213,32 +211,5 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
       throw new Error(`Websync: Websync must be initialized before calling \`getStats\``)
     }
     return this.stats.clone()
-  }
-
-  public async targetExists(): Promise<boolean> {
-    if (!isS3Container(this.target)) return true
-    const bucket = this.target.getBucketName()
-    const s3 = new S3()
-    try {
-      await s3.headBucket({ Bucket: bucket }).promise()
-      return true
-    } catch (err) {
-      return false
-    }
-  }
-
-  public async ensureTarget(): Promise<void> {
-    if (!isS3Container(this.target)) return
-    const exists = await this.targetExists()
-    if (!exists) {
-      const s3 = new S3()
-      const res = await s3.createBucket({
-        Bucket: this.target.getBucketName(),
-        ACL: this.bucketACL,
-        CreateBucketConfiguration: {
-          LocationConstraint: AWSConfig.region,
-        },
-      }).promise()
-    }
   }
 }
