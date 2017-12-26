@@ -1,6 +1,7 @@
 import * as path from 'path'
 import { S3 } from 'aws-sdk'
 import * as minimatch from 'minimatch'
+import * as mime from 'mime'
 import S3Prefixer from './S3Prefixer'
 import S3Item from './S3Item'
 import {
@@ -80,6 +81,9 @@ export default class S3Container extends S3Prefixer implements Container {
       Key: key,
       Body: body,
     })
+    if (!params.ContentType) {
+      params.ContentType = mime.getType(key) || 'application/octet-stream'
+    }
     const objectOutput = await s3.putObject(params).promise()
     const objectHead = await s3.headObject({
       Bucket: this.bucketName,
