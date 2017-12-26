@@ -41,6 +41,6 @@ resource "aws_cloudfront_distribution" "websyc_basic_example_dist" {
         max_ttl = 86400
         target_origin_id = "websync-basic-example"
         compress = true
-        viewer_protocol_policy = "redirect-to-https"
+        viewer_protocol_policy = "allow-all"
     }
 }
