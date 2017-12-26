@@ -11,16 +11,20 @@ export default class FileContainer implements Container {
   public type: ContainerType = 'FILE'
 
   constructor(baseDirectory: string) {
-    this.baseDirectory = Path.resolve(baseDirectory)
+    this.baseDirectory = baseDirectory
+  }
+
+  private getDir(): string {
+    return Path.resolve(this.baseDirectory)
   }
 
   private readAllFileNames(): Promise<string[]> {
     return new Promise((resolve, reject) => {
-      glob(Path.join(this.baseDirectory, '**'), (err, fileNames) => {
+      glob(Path.join(this.getDir(), '**'), (err, fileNames) => {
         if (err) return reject(err)
 
         fileNames = fileNames
-          .map(f => f.replace(this.baseDirectory, ''))
+          .map(f => f.replace(this.getDir(), ''))
           .filter(f => !!f)
 
         resolve(fileNames)
@@ -42,9 +46,9 @@ export default class FileContainer implements Container {
 
     await Promise.all(
       fileNames.map(fileName => queue.add(async () => {
-        const stat = await fs.stat(Path.join(this.baseDirectory, fileName))
+        const stat = await fs.stat(Path.join(this.getDir(), fileName))
         if (!stat.isDirectory()) {
-          items.push(new FileItem(this.baseDirectory, fileName, stat))
+          items.push(new FileItem(this.getDir(), fileName, stat))
         }
       }))
     )
@@ -54,17 +58,17 @@ export default class FileContainer implements Container {
 
   public async putItem(item: Item): Promise<Item> {
     const body = await item.read()
-    const fileName = Path.join(this.baseDirectory, item.key)
+    const fileName = Path.join(this.getDir(), item.key)
     const dirName = Path.dirname(fileName)
 
     await fs.mkdirp(dirName)
     await fs.writeFile(fileName, body)
 
-    return FileItem.fromFileName(this.baseDirectory, item.key)
+    return FileItem.fromFileName(this.getDir(), item.key)
   }
 
   public async delItem(item: Item): Promise<void> {
-    const fileName = Path.join(this.baseDirectory, item.key)
+    const fileName = Path.join(this.getDir(), item.key)
     await fs.unlink(fileName)
   }
 }

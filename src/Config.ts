@@ -8,9 +8,7 @@ const defaultConfigNames: string[] = [
   'websync.json',
 ]
 
-export interface ConfigFile extends WebsyncOptions {
-  region?: string
-}
+export interface ConfigFile extends WebsyncOptions {}
 
 export interface ConfigOptions {
   argv?: string[]
@@ -78,9 +76,6 @@ export default class Config {
     }
     if ('invalidateDeletes' in args) {
       opts.invalidateDeletes = args.invalidateDeletes
-    }
-    if ('bucketACL' in args) {
-      opts.bucketACL = args.bucketACL
     }
     if (typeof opts.source !== 'string' || typeof opts.target !== 'string') {
       throw new Error('Config: `source` and `target` options are required')

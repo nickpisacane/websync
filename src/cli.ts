@@ -12,7 +12,6 @@ websync [...options]
 Options:
   -h, --help           Show this message
   -y, --yes            Skip prompts with a "yes" by default
-  --region             AWS Region
   --config             Provide a configuration file (js or json)
   --include            Pattern to include
   --exclude            Patter to exclude
@@ -56,31 +55,8 @@ export default async () => {
     return showHelp()
   }
 
-  if (options.region) {
-    AWS.config.update({ region: options.region })
-  }
-
   const progress = progressBar('|:bar| :success :key :time ms')
   const websync = new Websync(options)
-
-  const targetExists = await websync.targetExists()
-  if (!targetExists) {
-    const shouldCreateTarget = defaultYes || await prompt(
-      `The target ${options.target} doesn't exist, would you like to create it? (Y/N)`
-    )
-    if (!shouldCreateTarget) {
-      console.error(`No target container, exiting...`)
-      process.exit(1)
-    }
-
-    try {
-      await websync.ensureTarget()
-      console.log(`Created target container: ${options.target}`)
-    } catch (err) {
-      console.error(`Failed to create target container, exiting...`)
-      process.exit(1)
-    }
-  }
 
   websync.on('progress', (event: WebsyncTransferProgressEvent) => {
     progress(event.progress, {
