@@ -52,7 +52,7 @@ export class MockS3Bucket {
         LastModified: obj.LastModified,
         ContentLength: obj.Size,
         ETag: 'NOT AN ETAG',
-        ContentType: mime.lookup(obj.Key),
+        ContentType: mime.getType(obj.Key),
         Metadata: {},
       }
 
@@ -89,7 +89,7 @@ export class MockS3Bucket {
         LastModified: obj.LastModified,
         ContentLength: obj.Size,
         ETag: 'NOT AN ETAG',
-        ContentType: mime.lookup(obj.Key),
+        ContentType: mime.getType(obj.Key),
         Metadata: {},
       }
       return Promise.resolve(ret)
