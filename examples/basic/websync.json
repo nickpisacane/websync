@@ -1,7 +1,7 @@
 {
     "source": "./public",
     "target": "s3://websync-basic-example-bucket",
-    "exclude": "*.exclude",
+    "exclude": "**/*.exclude",
     "putOptions": {
         "!*.*": {
             "ContentType": "text/html"
