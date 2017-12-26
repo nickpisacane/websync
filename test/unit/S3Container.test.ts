@@ -108,6 +108,31 @@ const createContainerTest = (prefix: string = '') => () => {
       expect(/^NoSuchKey/.test(err.message)).to.equal(true)
     }
   })
+
+  it('infers content-type', async () => {
+    const body = new Buffer('<html></html>')
+    const item: Item = {
+      key: 'index.html',
+      modtime: new Date(),
+      size: body.length,
+      isSymbolicLink: false,
+      read: () => Promise.resolve(body),
+    }
+
+    await s3Container.putItem(item)
+
+    const obj = await s3.getObject({
+      Bucket: bucketName,
+      Key: withPrefix('index.html'),
+    }).promise()
+
+    expect(obj.ContentType).to.equal('text/html')
+
+    await s3.deleteObject({
+      Bucket: bucketName,
+      Key: withPrefix('index.html'),
+    }).promise()
+  })
 }
 
 describe('S3Container', () => {
