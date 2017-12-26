@@ -59,3 +59,8 @@ typings/
 
 # Ignore build
 /build
+
+# Ignore Terraform stuff in examples
+.terraform
+*.tfstate
+*.tfstate.backup
