@@ -295,4 +295,29 @@ describe('generateInvalidations', () => {
     expect(invalidations).to.have.length(1)
     expect(invalidations[0]).to.equal('/foo/bar/bang.txt*')
   })
+
+  it('test root', async () => {
+    const test = createInvalidationTest([
+      {
+        type: 'UPDATE',
+        key: 'another-page',
+      },
+      {
+        type: 'UPDATE',
+        key: 'index.html',
+      },
+      {
+        type: 'STATIC',
+        key: 'another-page',
+      },
+      {
+        type: 'STATIC',
+        key: 'index.html',
+      },
+    ])
+
+    const invalidations = await test('majority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
 })
