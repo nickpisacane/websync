@@ -97,8 +97,10 @@ export default function generateInvalidations({
     return map
   }, {} as { [key: string]: boolean })
 
+  console.log('============ BEGIN ============')
+
   diffTree.walk('/', diffNode => {
-    if (isInvalidated(diffNode.path, invalidationPaths) || diffNode.name === '%ROOT%') {
+    if (isInvalidated(diffNode.path, invalidationPaths)) {
       return
     }
 
@@ -113,6 +115,14 @@ export default function generateInvalidations({
     const itemDirectChildCount = itemTree.countDirectChildren(itemNode)
     let isWildcarded = shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
     let path = diffNode.path
+
+    console.log('path: ', diffNode.path)
+    console.log('diffChildCount: ', diffChildCount)
+    console.log('itemChildCount: ', itemChildCount)
+    console.log('diffDirectChildCount: ', diffDirectChildCount)
+    console.log('itemDirectChildCount: ', itemDirectChildCount)
+    console.log('isWildCarded: ', isWildcarded)
+    console.log()
 
     // If the `diffNode`'s path is not wildcarded on the basis of ALL of its children, then check
     // if its path on the basis of DIRECT children can be wildcarded. The result will be a path
@@ -137,5 +147,7 @@ export default function generateInvalidations({
     invalidationPaths.push(invalidationPath)
   })
 
+  console.log('PATHS: ', invalidationPaths)
+  console.log('============ END ============\n\n')
   return invalidationPaths
 }
