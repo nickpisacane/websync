@@ -33,7 +33,7 @@ describe('Websync', () => {
 
   it('lifecycle', async () => {
     const websync = new Websync({
-      source: path.join(__dirname, 'fixtures', 'testDirectory'),
+      source: path.join(__dirname, '..', 'fixtures', 'testDirectory'),
       target: 's3://websync-test',
     })
 
@@ -43,7 +43,7 @@ describe('Websync', () => {
     expect(preStats.completed).to.equal(false)
     expect(preStats.distributions).to.have.length(1)
     expect(preStats.invalidations).to.deep.equal([
-      '/bang*',
+      '/*',
     ])
     const stats = await websync.sync()
     expect(stats.completed).to.equal(true)
