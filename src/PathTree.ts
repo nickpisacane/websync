@@ -86,10 +86,14 @@ export default class PathTree {
 
     if (!node) return
 
-    fn(node)
-    node.children.forEach(child => {
-      this.walk(child, fn)
-    })
+    const queue: Node[] = [node]
+
+    while (queue.length) {
+      const n = queue.shift()
+      if (!n) continue
+      fn(n)
+      queue.push(...n.children)
+    }
   }
 
   public countAllChildren(pathOrNode: Node | string = this.root, onlyFiles: boolean = true): number {
