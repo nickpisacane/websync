@@ -20,6 +20,10 @@ const expectInvalidation = (invalidations: string[], path: string) => {
   expect(invalidations.indexOf(path)).to.not.equal(-1)
 }
 
+const expectInvalidations = (result: string[], expected: string[]) => {
+  expect(result.slice().sort()).to.deep.equal(expected.slice().sort())
+}
+
 interface KeyDiff {
   type: ItemDiffType | 'STATIC'
   key: string
@@ -52,7 +56,7 @@ const createInvalidationTest = (
       let modtime = faker.date.past()
 
       if (kd.type === 'STATIC') {
-        if (!sizes[kd.key] || !modtimes[kd.key]) {
+        if (!(kd.key in sizes) && !(kd.key in modtimes)) {
           throw new Error(`Expected size/modtime to exist for key: "${kd.key}"`)
         } else {
           size = sizes[kd.key]
@@ -158,166 +162,222 @@ describe('generateInvalidations', () => {
     expect(normalizeInvalidationPath('foo*', true)).to.equal('/foo*')
   })
 
-  it('basic invalidations with policy = "majority"', async () => {
-    const invalidations = await basicInvalidations('majority')
+  // TODO: Explain test cases...
+  const test1 = createInvalidationTest([
+    {
+      type: 'UPDATE',
+      key: 'foo',
+    },
+    {
+      type: 'UPDATE',
+      key: 'bar',
+    },
+    {
+      type: 'STATIC',
+      key: 'bang',
+    },
+  ])
 
-    expect(invalidations).to.have.length(2)
-    // update.html => /update.html
-    expectInvalidation(invalidations, '/update.html')
-    // i/am/deleted.css => /i*
-    expectInvalidation(invalidations, '/i*')
-  })
+  const test2 = createInvalidationTest([
+    {
+      type: 'UPDATE',
+      key: 'foo/bar',
+    },
+    {
+      type: 'STATIC',
+      key: 'foo/bang',
+    },
+    {
+      type: 'STATIC',
+      key: 'foo/baz',
+    },
+    {
+      type: 'UPDATE',
+      key: 'boo',
+    },
+  ])
 
-  it('basic invalidations with policy = "minority"', async () => {
-    const invalidations = await basicInvalidations('minority')
+  const test3 = createInvalidationTest([
+    {
+      type: 'UPDATE',
+      key: 'foo/bar',
+    },
+    {
+      type: 'UPDATE',
+      key: 'foo/bang',
+    },
+    {
+      type: 'STATIC',
+      key: 'foo/baz',
+    },
+  ])
 
-    expect(invalidations).to.have.length(2)
-    // update.html => /update.html
-    expectInvalidation(invalidations, '/update.html')
-    // i/am/deleted.css => /i*
-    expectInvalidation(invalidations, '/i*')
-  })
+  const test4 = createInvalidationTest([
+    {
+      type: 'UPDATE',
+      key: 'foo/bar',
+    },
+    {
+      type: 'UPDATE',
+      key: 'foo/bang',
+    },
+    {
+      type: 'STATIC',
+      key: 'foo/baz',
+    },
+    {
+      type: 'UPDATE',
+      key: 'boo',
+    },
+    {
+      type: 'STATIC',
+      key: 'booz',
+    },
+    {
+      type: 'STATIC',
+      key: 'banger',
+    },
+  ])
 
-  it('basic invalidations with policy = "unanimous"', async () => {
-    const invalidations = await basicInvalidations('unanimous')
+  const test5 = createInvalidationTest([
+    {
+      type: 'UPDATE',
+      key: 'foo/bar',
+    },
+    {
+      type: 'STATIC',
+      key: 'foo/bang',
+    },
+    {
+      type: 'UPDATE',
+      key: 'foo/baz/bar',
+    },
+    {
+      type: 'UPDATE',
+      key: 'foo/baz/boo',
+    },
+    {
+      type: 'STATIC',
+      key: 'one',
+    },
+    {
+      type: 'STATIC',
+      key: 'two',
+    },
+    {
+      type: 'STATIC',
+      key: 'three',
+    },
+  ])
 
-    expect(invalidations).to.have.length(2)
-    // update.html => /update.html
-    expectInvalidation(invalidations, '/update.html')
-    // i/am/deleted.css => /i*
-    expectInvalidation(invalidations, '/i*')
-  })
-
-  it('generates invalidations direct child invalidations when applicable', async () => {
-    // on the basis of ALL of a's children majority/unanimous policy fails, but on the basis of DIRECT
-    // children, majority/unanimous wins. Thus, expect a direct-child wildcard invalidtion: "/a/*"
-    const test = createInvalidationTest([
-      {
-        type: 'UPDATE',
-        key: 'a/update_1',
-      },
-      {
-        type: 'UPDATE',
-        key: 'a/update_2',
-      },
-      {
-        type: 'STATIC',
-        key: 'a/b/static_1',
-      },
-      {
-        type: 'STATIC',
-        key: 'a/b/static_2',
-      },
-      {
-        type: 'STATIC',
-        key: 'a/b/static_2',
-      },
-    ])
-
-    const majorityInvalidations = await test('majority')
-    expect(majorityInvalidations).to.have.length(1)
-    expect(majorityInvalidations[0]).to.equal('/a/*')
-
-    const unanimousInvalidations = await test('unanimous')
-    expect(unanimousInvalidations).to.have.length(1)
-    expect(unanimousInvalidations[0]).to.equal('/a/*')
-  })
-
-  it('option: invalidateDeletes = false', async () => {
-    const test = createInvalidationTest([
-      {
-        type: 'DELETE',
-        key: 'foo',
-      },
-    ], {
-      invalidateDeletes: false,
-    })
-
-    const invalidations = await test('majority')
-    expect(invalidations).to.have.length(0)
-  })
-
-  it('option: wildcardAll = true', async () => {
-    const test = createInvalidationTest([
-      {
-        type: 'UPDATE',
-        key: 'foo.txt',
-      },
-    ], {
-      wildcardAll: true,
-    })
-
-    const invalidations = await test('majority')
-    expect(invalidations).to.have.length(1)
-    expect(invalidations[0]).to.equal('/foo.txt*')
-  })
-
-  it('it does not invalidate parent paths when unnecessary', async () => {
-    const test = createInvalidationTest([
-      {
-        type: 'UPDATE',
-        key: 'foo/bar/bang.txt',
-      },
-      {
-        type: 'STATIC',
-        key: 'foo/baz.txt',
-      },
-      {
-        type: 'STATIC',
-        key: 'foo/bar/boo.txt',
-      },
-    ])
-
-    const invalidations = await test('majority')
-    expect(invalidations).to.have.length(1)
-    expect(invalidations[0]).to.equal('/foo/bar/bang.txt')
-  })
-
-  it('it does not invalidate parent paths when unnecessary (wildcardAll = true)', async () => {
-    const test = createInvalidationTest([
-      {
-        type: 'UPDATE',
-        key: 'foo/bar/bang.txt',
-      },
-      {
-        type: 'STATIC',
-        key: 'foo/baz.txt',
-      },
-      {
-        type: 'STATIC',
-        key: 'foo/bar/boo.txt',
-      },
-    ], {
-      wildcardAll: true,
-    })
-
-    const invalidations = await test('majority')
-    expect(invalidations).to.have.length(1)
-    expect(invalidations[0]).to.equal('/foo/bar/bang.txt*')
-  })
-
-  it('test root', async () => {
-    const test = createInvalidationTest([
-      {
-        type: 'UPDATE',
-        key: 'another-page',
-      },
-      {
-        type: 'UPDATE',
-        key: 'index.html',
-      },
-      {
-        type: 'STATIC',
-        key: 'another-page',
-      },
-      {
-        type: 'STATIC',
-        key: 'index.html',
-      },
-    ])
-
-    const invalidations = await test('majority')
+  // TEST 1
+  it('test 1 (majority)', async () => {
+    const invalidations = await test1('majority')
     expect(invalidations).to.have.length(1)
     expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 1 (minority)', async () => {
+    const invalidations = await test1('minority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 1 (unanimous)', async () => {
+    const invalidations = await test1('unanimous')
+    expect(invalidations).to.have.length(2)
+    expectInvalidations(invalidations, ['/foo', '/bar'])
+  })
+
+  // TEST 2
+  it('test 2 (majority)', async () => {
+    const invalidations = await test2('majority')
+    expect(invalidations).to.have.length(2)
+    expectInvalidations(invalidations, ['/foo/bar', '/boo'])
+  })
+  it('test 2 (minority)', async () => {
+    const invalidations = await test2('minority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 2 (unanimous)', async () => {
+    const invalidations = await test2('unanimous')
+    expect(invalidations).to.have.length(2)
+    expectInvalidations(invalidations, ['/foo/bar', '/boo'])
+  })
+
+  // TEST 3
+  it('test 3 (majority)', async () => {
+    const invalidations = await test3('majority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 3 (minority)', async () => {
+    const invalidations = await test3('minority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 3 (unanimous)', async () => {
+    const invalidations = await test3('unanimous')
+    expect(invalidations).to.have.length(2)
+    expectInvalidations(invalidations, ['/foo/bar', '/foo/bang'])
+  })
+
+  // TEST 4
+  it('test 4 (majority)', async () => {
+    const invalidations = await test4('majority')
+    expect(invalidations).to.have.length(2)
+    expectInvalidations(invalidations, ['/foo/*', '/boo'])
+  })
+  it('test 4 (minority)', async () => {
+    const invalidations = await test4('minority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 4 (unanimous)', async () => {
+    const invalidations = await test4('unanimous')
+    expect(invalidations).to.have.length(3)
+    expectInvalidations(invalidations, ['/foo/bar', '/foo/bang', '/boo'])
+  })
+
+  // TEST 5
+  it('test 5 (majority)', async () => {
+    const invalidations = await test5('majority')
+    expect(invalidations).to.have.length(1)
+    expectInvalidations(invalidations, ['/foo*'])
+  })
+  it('test 5 (minority)', async () => {
+    const invalidations = await test5('minority')
+    expect(invalidations).to.have.length(1)
+    expect(invalidations[0]).to.equal('/*')
+  })
+  it('test 5 (unanimous)', async () => {
+    const invalidations = await test5('unanimous')
+    expect(invalidations).to.have.length(2)
+    expectInvalidations(invalidations, ['/foo/bar', '/foo/baz/*'])
+  })
+
+
+  // Basic wildcard-all test
+  it('appends wildcard when `wildcardAll` option is true', async () => {
+    const test = createInvalidationTest([
+      {
+        type: 'UPDATE',
+        key: 'foo',
+      },
+      {
+        type: 'STATIC',
+        key: 'bar',
+      },
+    ], {
+      wildcardAll: true,
+    })
+
+    const majority = await test('majority')
+    expectInvalidations(majority, ['/foo*'])
+
+    const minority = await test('minority')
+    expectInvalidations(minority, ['/*'])
+
+    const unanimous = await test('unanimous')
+    expectInvalidations(unanimous, ['/foo*'])
   })
 })

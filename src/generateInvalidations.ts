@@ -33,8 +33,8 @@ export const match = (path: string, pattern: string): boolean => {
 }
 
 export const normalizeInvalidationPath = (path: string, wildcard: boolean = false): string => {
-  if (!/^\//.test(path)) path = `/${path}`
-  if (!/\*$/.test(path) && wildcard) path = `${path}*`
+  if (path[0] !== '/') path = `/${path}`
+  if (path[path.length - 1] !== '*' && wildcard) path = `${path}*`
   return path
 }
 
@@ -97,8 +97,6 @@ export default function generateInvalidations({
     return map
   }, {} as { [key: string]: boolean })
 
-  console.log('============ BEGIN ============')
-
   diffTree.walk('/', diffNode => {
     if (isInvalidated(diffNode.path, invalidationPaths)) {
       return
@@ -112,27 +110,16 @@ export default function generateInvalidations({
     const diffChildCount = diffTree.countAllChildren(diffNode)
     const itemChildCount = itemTree.countAllChildren(itemNode)
     const diffDirectChildCount = diffTree.countDirectChildren(diffNode)
-    const itemDirectChildCount = itemTree.countDirectChildren(itemNode)
     let isWildcarded = shouldWildcard(diffChildCount, itemChildCount, wildcardPolicy)
     let path = diffNode.path
 
-    console.log('path: ', diffNode.path)
-    console.log('diffChildCount: ', diffChildCount)
-    console.log('itemChildCount: ', itemChildCount)
-    console.log('diffDirectChildCount: ', diffDirectChildCount)
-    console.log('itemDirectChildCount: ', itemDirectChildCount)
-    console.log('isWildCarded: ', isWildcarded)
-    console.log()
-
-    // If the `diffNode`'s path is not wildcarded on the basis of ALL of its children, then check
-    // if its path on the basis of DIRECT children can be wildcarded. The result will be a path
-    // with a forward slash BEFORE the wildcard (see the Amazon Doc Reference) as this will only
-    // invalidate direct children.
-    if (!isWildcarded) {
-      if (shouldWildcard(diffDirectChildCount, itemDirectChildCount, wildcardPolicy)) {
-        path += '/'
-        isWildcarded = true
-      }
+    // If the current path is a "directory" (because it's wildcarded) and all of the invalidations
+    // required are direct children, then append a "/" to the path. See the Amazon Documentation
+    // reference above for more info. Basically, a path like "/foo/*" will only invalidate direct
+    // children of "foo", whereas "/foo*" invalidates all of the children.
+    if (isWildcarded && path[path.length - 1] !== '/' && diffChildCount === diffDirectChildCount) {
+      path += '/'
+      isWildcarded = true
     }
 
     // If the path is not wildcarded by now, the only case in which this path should be invalidated
@@ -147,7 +134,5 @@ export default function generateInvalidations({
     invalidationPaths.push(invalidationPath)
   })
 
-  console.log('PATHS: ', invalidationPaths)
-  console.log('============ END ============\n\n')
   return invalidationPaths
 }
