@@ -34,11 +34,12 @@ export default class FileContainer implements Container {
 
   public async listItems(options: ListItemsOptions = {}): Promise<Item[]> {
     let fileNames = await this.readAllFileNames()
-    if (options.include) {
-      fileNames = fileNames.filter((fileName) => minimatch(fileName, options.include as string))
+    const { include, exclude } = options
+    if (include) {
+      fileNames = fileNames.filter((fileName) => minimatch(fileName, include, { matchBase: true }))
     }
-    if (options.exclude) {
-      fileNames = fileNames.filter(fileName => !minimatch(fileName, options.exclude as string))
+    if (exclude) {
+      fileNames = fileNames.filter((fileName) => !minimatch(fileName, exclude, { matchBase: true }))
     }
 
     const queue = new PQueue({ concurrency: 10 })

@@ -62,11 +62,12 @@ export default class S3Container extends S3Prefixer implements Container {
 
   public async listItems(options: ListItemsOptions = {}): Promise<Item[]> {
     let objects = await this.listAllObjects()
-    if (options.include) {
-      objects = objects.filter(obj => obj.Key && minimatch(obj.Key, options.include as string))
+    const { include, exclude } = options
+    if (include) {
+      objects = objects.filter(obj => obj.Key && minimatch(obj.Key, include, { matchBase: true }))
     }
-    if (options.exclude) {
-      objects = objects.filter(obj => obj.Key && !minimatch(obj.Key, options.exclude as string))
+    if (exclude) {
+      objects = objects.filter(obj => obj.Key && !minimatch(obj.Key, exclude, { matchBase: true }))
     }
 
     return objects.map(obj => new S3Item(this.bucketName, obj))
