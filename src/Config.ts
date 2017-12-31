@@ -77,6 +77,11 @@ export default class Config {
     if ('invalidateDeletes' in args) {
       opts.invalidateDeletes = args.invalidateDeletes
     }
+    if ('distribution' in args) {
+      opts.deleteOptions = Array.isArray(args.distribution)
+        ? args.distribution
+        : [args.distribution]
+    }
     if (typeof opts.source !== 'string' || typeof opts.target !== 'string') {
       throw new Error('Config: `source` and `target` options are required')
     }
