@@ -33,7 +33,7 @@ const showHelp = () => {
 
 const prompt = (msg: string): Promise<boolean> => new Promise((resolve, reject) => {
   rl.question(msg, answer => {
-    resolve(/^y/i.test(answer))
+    resolve(/^y/i.test(answer.trim()))
   })
 })
 
