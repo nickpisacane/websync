@@ -11,7 +11,7 @@ import {
 } from './types'
 import S3Container from './S3Container'
 import Transfer, { TransferItemCompleteEvent } from './Transfer'
-import CloudFrontInvalidator from './CloudFrontIndalidator'
+import CloudFrontInvalidator, { CloudFrontInvalidatorOptions } from './CloudFrontIndalidator'
 import Stats from './Stats'
 import GlobTable from './GlobTable'
 import * as Errors from './Errors'
@@ -50,6 +50,7 @@ export interface WebsyncOptions {
   wildcardPolicy?: WildcardPolicy
   wildcardAll?: boolean
   invalidateDeletes?: boolean
+  distributions?: string[]
 }
 
 export default class Websync extends EventEmitter implements WebsyncEmitter {
@@ -73,6 +74,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   private transfer: Transfer
   private invalidations: string[] | undefined
   private invalidator: CloudFrontInvalidator | undefined
+  private distributions: string[]
 
   private completeCount = 0
 
@@ -97,6 +99,9 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     }
     if (typeof options.invalidateDeletes === 'boolean') {
       this.invalidateDeletes = options.invalidateDeletes
+    }
+    if (options.distributions) {
+      this.distributions = options.distributions
     }
 
     this.stats = new Stats({
@@ -155,6 +160,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
       this.invalidator = new CloudFrontInvalidator({
         bucketName: this.target.getBucketName(),
         paths: this.invalidations,
+        ids: this.distributions,
       })
 
       this.stats.update({
@@ -176,7 +182,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
 
   public async sync(invalidate: boolean = true): Promise<Stats> {
     const startTime = Date.now()
-    this.stats.invalidated = invalidate
+    this.stats.invalidated = false
 
     if (this.completed) {
       throw new Errors.AlreadyCompleted()
