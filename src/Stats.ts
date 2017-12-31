@@ -43,11 +43,13 @@ export default class Stats implements StatsObject {
   public toString({ colors = true }: { colors?: boolean } = {}): string {
     const c = new chalk.constructor({ enabled: colors })
     const diffToString = this.diffToString.bind(this, c)
-    let ret = `${this.source} \u2192 ${this.target}`
-    ret += `\nTook: ${this.time}`
-    ret += `\nTransfer:\n${this.diffs.map(diffToString).join('\n')}\n`
+    let ret = `${this.source} ${c.bold(c.greenBright(`\u2192`))} ${this.target}`
+    const invalidations = (this.invalidations || []).map(p => c.red(p))
+    ret += `\nTook: ${this.time / 1000} s`
+    ret += `\nTransfer:\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     if (this.invalidated) {
-      ret += `Invalidated:\n` + (this.invalidations || []).join('\n')
+      const domains = (this.distributions || []).map(d => c.blue(d.DomainName))
+      ret += `Invalidated on (${domains.join(', ')}):\n\t${invalidations.join('\n\t')}`
     }
     return ret
   }
