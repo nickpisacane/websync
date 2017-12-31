@@ -45,7 +45,7 @@ export default class Stats implements StatsObject {
     const diffToString = this.diffToString.bind(this, c)
     let ret = `${this.source} \u2192 ${this.target}`
     ret += `\nTook: ${this.time}`
-    ret += `\nTransfer:\n${this.diffs.map(diffToString)}\n`
+    ret += `\nTransfer:\n${this.diffs.map(diffToString).join('\n')}\n`
     if (this.invalidated) {
       ret += `Invalidated:\n` + (this.invalidations || []).join('\n')
     }
