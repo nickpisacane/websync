@@ -18,6 +18,7 @@ Options:
   --wildcardPolicy     Set the wildcard policy (majority, minority, or unanmious)
   --wildcardAll        Append wildcard to all invalidations
   --invalidateDeletes  Invalidate delete transfers
+  --distribution       One or more CloudFront distribution IDs to invalidate
 `
 
 const rl = readLine.createInterface({
