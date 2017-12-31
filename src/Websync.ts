@@ -119,13 +119,10 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
 
     this.transfer
       .on('putObject', (key: string, options: S3PutModifier) => {
-        console.log('K: ', key)
-        console.log('options: ', options)
         const opts = this.putOptionsTable.lookup(key)
         if (opts) {
           Object.assign(options, opts)
         }
-        console.log('opts: ', opts)
       })
       .on('deleteObject', (key: string, options: S3DeleteModifier) => {
         const opts = this.deleteOptionsTable.lookup(key)
