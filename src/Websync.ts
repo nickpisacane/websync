@@ -72,7 +72,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
 
   private wildcardPolicy: WildcardPolicy = 'majority'
   private wildcardAll: boolean = false
-  private invalidateDeletes: boolean = true
+  private invalidateDeletes: boolean = false
 
   private initialized: boolean = false
   private completed: boolean = false
