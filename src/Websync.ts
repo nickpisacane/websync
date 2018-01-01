@@ -53,8 +53,8 @@ export interface WebsyncOptions {
   include?: string
   exclude?: string
   diffBy?: DiffKey
-  putOptions?: WebsyncPutModifiers
-  deleteOptions?: WebsyncDeleteModifiers
+  modifiers?: WebsyncPutModifiers
+  deleteModifiers?: WebsyncDeleteModifiers
   wildcardPolicy?: WildcardPolicy
   wildcardAll?: boolean
   invalidateDeletes?: boolean
@@ -92,8 +92,8 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     this.source = parseContainerFromURL(options.source)
     this.target = parseContainerFromURL(options.target)
     this.filterOptions = { include: options.include, exclude: options.exclude }
-    this.putOptionsTable = new GlobTable<WebsyncModifier<S3PutModifier>>(options.putOptions || {})
-    this.deleteOptionsTable = new GlobTable<WebsyncModifier<S3DeleteModifier>>(options.deleteOptions || {})
+    this.putOptionsTable = new GlobTable<WebsyncModifier<S3PutModifier>>(options.modifiers || {})
+    this.deleteOptionsTable = new GlobTable<WebsyncModifier<S3DeleteModifier>>(options.deleteModifiers || {})
     this.completeCount = 0
 
     if (options.diffBy) {
