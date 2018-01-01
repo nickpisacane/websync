@@ -47,7 +47,7 @@ export default class AsyncEventEmitter {
   }
 
   public async emit(event: string, ...args: any[]): Promise<boolean> {
-    if (this._events.hasOwnProperty(event)) {
+    if (this._events.hasOwnProperty(event) && this._events[event].length) {
       await this._events[event].reduce(async (p: Promise<void>, listener: Listener): Promise<void> => {
         await p
         await listener(...args)
