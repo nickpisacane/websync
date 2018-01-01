@@ -41,7 +41,6 @@ export default class Config {
     if (!this.configFileName) {
       return {}
     }
-    console.log('requiring: ', this.configFileName)
     const opts = require(Path.resolve(this.configFileName)) as Partial<ConfigFile>
     return opts
   }
@@ -49,8 +48,6 @@ export default class Config {
   public async resolve(): Promise<ConfigFile> {
     const args = minimist(this.argv)
     const opts: Partial<ConfigFile> = await this.readConfigFile()
-    console.log('OPTS: ', opts)
-    console.log('ARGS: ', args)
     if (args._.length) {
       if (args._.length !== 2) {
         throw new Error('Config: `source` and `target` are both required, if supplied by argv.')
@@ -78,14 +75,13 @@ export default class Config {
       opts.invalidateDeletes = args.invalidateDeletes
     }
     if ('distribution' in args) {
-      opts.deleteOptions = Array.isArray(args.distribution)
+      opts.distributions = Array.isArray(args.distribution)
         ? args.distribution
         : [args.distribution]
     }
     if (typeof opts.source !== 'string' || typeof opts.target !== 'string') {
       throw new Error('Config: `source` and `target` options are required')
     }
-    console.log('OPTS 2: ', opts)
     return opts as ConfigFile
   }
 }
