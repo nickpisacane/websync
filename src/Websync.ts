@@ -41,6 +41,12 @@ export interface WebsyncEmitter {
   on(event: 'progress', listener: (eventData: WebsyncTransferProgressEvent) => void): this
 }
 
+const processModifiers = <T> (item: Item, options: T, modifiers: WebsyncModifier<T>[]): T =>
+  modifiers.reduce(
+    (ret: T, m: WebsyncModifier<T>) => Object.assign(ret, typeof m === 'function' ? m(item) : m),
+    options
+  )
+
 export interface WebsyncOptions {
   source: string
   target: string
@@ -126,16 +132,12 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
 
     this.transfer
       .on('putObject', (item: Item, options: S3PutModifier) => {
-        const opts = this.putOptionsTable.lookup(item.key)
-        if (opts) {
-          Object.assign(options, typeof opts === 'function' ? opts(item) : opts)
-        }
+        const modifiers = this.putOptionsTable.lookup(item.key)
+        processModifiers(item, options, modifiers)
       })
       .on('deleteObject', (item: Item, options: S3DeleteModifier) => {
-        const opts = this.deleteOptionsTable.lookup(item.key)
-        if (opts) {
-          Object.assign(options, typeof opts === 'function' ? opts(item) : opts)
-        }
+        const modifiers = this.deleteOptionsTable.lookup(item.key)
+        processModifiers(item, options, modifiers)
       })
       .on('itemComplete', (data: TransferItemCompleteEvent) => {
         this.completeCount++
