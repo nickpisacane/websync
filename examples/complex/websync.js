@@ -10,8 +10,7 @@ const makeDispositionName = fileName =>
 module.exports = {
   source: './public',
   target: 's3://websync-complex-example-bucket',
-  // Put options are a powerful and flexible way to modify objects before they are sent to S3
-  putOptions: {
+  modifiers: {
     // Modifier as a plain object
     '**/*': {
       Metadata: {
