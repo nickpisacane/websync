@@ -27,6 +27,7 @@ module.exports = {
     // Modifier as an `async` function
     '*.redirect': async item => ({
       WebsiteRedirectLocation: (await item.read()).toString().trim(),
+      ContentType: 'text/html',
       Tagging: REDIRECT_TAG,
     }),
   },
