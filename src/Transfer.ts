@@ -17,10 +17,10 @@ export interface TransferItemCompleteEvent {
 }
 
 export interface TransferEmitter {
-  emit(event: 'putObject', key: string, options: S3PutModifier): boolean
+  emit(event: 'putObject', item: Item, options: S3PutModifier): boolean
   on(event: 'putObject', listener: (key: string, options: S3PutModifier) => void): this
 
-  emit(event: 'delObject', key: string, options: S3DeleteModifier): boolean
+  emit(event: 'delObject', item: Item, options: S3DeleteModifier): boolean
   on(event: 'delObject', listener: (key: string, options: S3DeleteModifier) => void): this
 
   emit(event: 'itemComplete', data: TransferItemCompleteEvent): boolean
@@ -80,7 +80,7 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
             const s3Options: S3DeleteModifier = {}
             const targetItem = diff.target
 
-            this.emit('delObject', targetItem.key, s3Options)
+            this.emit('delObject', targetItem, s3Options)
             await this.completeItem(
               Date.now(),
               diff.type,
@@ -91,7 +91,7 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
             const s3Options: S3PutModifier = {}
             const sourceItem = diff.source
 
-            this.emit('putObject', sourceItem.key, s3Options)
+            this.emit('putObject', sourceItem, s3Options)
             await this.completeItem(
               Date.now(),
               diff.type,
