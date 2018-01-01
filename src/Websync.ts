@@ -22,7 +22,7 @@ import generationInvalidations, { WildcardPolicy } from './generateInvalidations
 const isS3Container = (container: Container): container is S3Container =>
   container.type === 'S3'
 
-export type WebsyncModifier <T> = T | ((item: Item) => T)
+export type WebsyncModifier <T> = T | ((item: Item) => T | Promise<T>)
 
 export interface WebsyncPutModifiers {
   [key: string]: WebsyncModifier<S3PutModifier>
@@ -41,11 +41,11 @@ export interface WebsyncEmitter {
   on(event: 'progress', listener: (eventData: WebsyncTransferProgressEvent) => void): this
 }
 
-const processModifiers = <T> (item: Item, options: T, modifiers: WebsyncModifier<T>[]): T =>
-  modifiers.reduce(
-    (ret: T, m: WebsyncModifier<T>) => Object.assign(ret, typeof m === 'function' ? m(item) : m),
-    options
-  )
+const processModifiers = async <T> (item: Item, options: T, modifiers: WebsyncModifier<T>[]): Promise<void> =>
+  await modifiers.reduce(async (p: Promise<void>, m: WebsyncModifier<T>) => {
+    await p
+    Object.assign(options, typeof m === 'function' ? await m(item) : m)
+  }, Promise.resolve())
 
 export interface WebsyncOptions {
   source: string
@@ -131,13 +131,13 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     })
 
     this.transfer
-      .on('putObject', (item: Item, options: S3PutModifier) => {
+      .on('putObject', async (item: Item, options: S3PutModifier) => {
         const modifiers = this.putOptionsTable.lookup(item.key)
-        processModifiers(item, options, modifiers)
+        await processModifiers(item, options, modifiers)
       })
-      .on('deleteObject', (item: Item, options: S3DeleteModifier) => {
+      .on('deleteObject', async (item: Item, options: S3DeleteModifier) => {
         const modifiers = this.deleteOptionsTable.lookup(item.key)
-        processModifiers(item, options, modifiers)
+        await processModifiers(item, options, modifiers)
       })
       .on('itemComplete', (data: TransferItemCompleteEvent) => {
         this.completeCount++
