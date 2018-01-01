@@ -5,7 +5,7 @@ import FileContainer from '../../src/FileContainer'
 import S3Container from '../../src/S3Container'
 
 describe('parseContainerFromURL', () => {
-  describe('File URL\'s', () => {
+  describe('File URLs', () => {
     it('parses relative file paths', () => {
       const container = parseContainerFromURL('./foo')
       expect(container).to.be.instanceof(FileContainer)
@@ -25,7 +25,7 @@ describe('parseContainerFromURL', () => {
       expect((container as any).baseDirectory).to.equal('/foo/bar')
     })
 
-    it('parses absoluate file URLS', () => {
+    it('parses absoluate file URLs', () => {
       const abs = parseContainerFromURL('file:///foo/bar')
       expect(abs).to.be.instanceof(FileContainer)
       expect(abs.type).to.equal('FILE')
@@ -43,15 +43,15 @@ describe('parseContainerFromURL', () => {
     })
   })
 
-  describe('S3 URL\'s', () => {
-    it('parses S3 URL\'s (without prefix)', () => {
+  describe('S3 URLs', () => {
+    it('parses S3 URLs (without prefix)', () => {
       const container = parseContainerFromURL('s3://mybucket')
       expect(container).to.be.instanceof(S3Container)
       expect(container.type).to.equal('S3')
       expect((container as any).prefix).to.equal('')
     })
 
-    it('parses S3 URL\'s (with prefix)', () => {
+    it('parses S3 URLs (with prefix)', () => {
       const container = parseContainerFromURL('s3://mybucket/foo/bar')
       expect(container).to.be.instanceof(S3Container)
       expect(container.type).to.equal('S3')
@@ -59,7 +59,7 @@ describe('parseContainerFromURL', () => {
     })
   })
 
-  describe('Unsupported URL\'s', () => {
+  describe('Unsupported URLs', () => {
     it('throws an error', () => {
       try {
         parseContainerFromURL('http://test.com/foo')
