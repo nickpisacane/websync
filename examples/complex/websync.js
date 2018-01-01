@@ -19,9 +19,9 @@ module.exports = {
       },
     },
     // Modifier as a function
-    'download/**/*': item => ({
+    'downloads/**/*': item => ({
       ContentType: DOWNLOAD_CONTENT_TYPE,
-      ContentDisposition: makeDispositionName(item.key),
+      ContentDisposition: `attachment; filename="${makeDispositionName(item.key)}"`,
       Tagging: DOWNLOAD_TAG,
     }),
     // Modifier as an `async` function
