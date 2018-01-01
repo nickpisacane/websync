@@ -7,20 +7,24 @@ export type Listener = (...args: any[]) => void | Promise<void>
 export default class AsyncEventEmitter {
   private _events: { [key: string]: Listener[] } = {}
 
-  public on(event: string, listener: Listener) {
+  public on(event: string, listener: Listener): this {
     if (!this._events.hasOwnProperty(event)) {
       this._events[event] = []
     }
     this._events[event].push(listener)
+
+    return this
   }
 
-  public once(event: string, listener: Listener) {
+  public once(event: string, listener: Listener): this {
     const wrapper: Listener = async (...args: any[]): Promise<void> => {
       await listener(...args)
       this.removeListener(event, wrapper)
     }
 
     this.on(event, wrapper)
+
+    return this
   }
 
   public removeListener(event: string, listener: Listener) {
@@ -42,12 +46,16 @@ export default class AsyncEventEmitter {
     }
   }
 
-  public async emit(event: string, ...args: any[]): Promise<void> {
+  public async emit(event: string, ...args: any[]): Promise<boolean> {
     if (this._events.hasOwnProperty(event)) {
       await this._events[event].reduce(async (p: Promise<void>, listener: Listener): Promise<void> => {
         await p
         await listener(...args)
       }, Promise.resolve())
+
+      return true
     }
+
+    return false
   }
 }
