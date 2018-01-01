@@ -35,6 +35,7 @@ describe('Websync', () => {
     const websync = new Websync({
       source: path.join(__dirname, '..', 'fixtures', 'testDirectory'),
       target: 's3://websync-test',
+      invalidateDeletes: true,
     })
 
     await websync.initialize()
