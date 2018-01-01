@@ -80,4 +80,5 @@ export default async () => {
 
   const stats = await websync.sync(shouldInvalidate)
   console.log(stats.toString())
+  process.exit(0)
 }
