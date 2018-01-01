@@ -29,8 +29,5 @@ module.exports = {
       WebsiteRedirectLocation: (await item.read()).toString().trim(),
       Tagging: REDIRECT_TAG,
     }),
-    'private/**/*': {
-      ACL: 'private',
-    },
   },
 }
