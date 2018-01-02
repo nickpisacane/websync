@@ -8,6 +8,6 @@ describe('GlobTable', () => {
       './foo/**/*.js': 'bar',
     })
 
-    expect(table.lookup('./foo/bar/bang.js')).to.equal('bar')
+    expect(table.lookup('./foo/bar/bang.js')).to.deep.equal(['bar'])
   })
 })

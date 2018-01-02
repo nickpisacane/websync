@@ -1,6 +1,7 @@
-import { EventEmitter } from 'events'
 import { S3 } from 'aws-sdk'
 import * as PQueue from 'p-queue'
+
+import AsyncEventEmitter from './AsyncEventEmitter'
 import {
   Item,
   ItemDiff,
@@ -17,13 +18,13 @@ export interface TransferItemCompleteEvent {
 }
 
 export interface TransferEmitter {
-  emit(event: 'putObject', key: string, options: S3PutModifier): boolean
+  emit(event: 'putObject', item: Item, options: S3PutModifier): Promise<boolean>
   on(event: 'putObject', listener: (key: string, options: S3PutModifier) => void): this
 
-  emit(event: 'delObject', key: string, options: S3DeleteModifier): boolean
+  emit(event: 'delObject', item: Item, options: S3DeleteModifier): Promise<boolean>
   on(event: 'delObject', listener: (key: string, options: S3DeleteModifier) => void): this
 
-  emit(event: 'itemComplete', data: TransferItemCompleteEvent): boolean
+  emit(event: 'itemComplete', data: TransferItemCompleteEvent): Promise<boolean>
   on(event: 'itemComplete', listener: (data: TransferItemCompleteEvent) => void): this
 }
 
@@ -34,7 +35,7 @@ export interface TransferOptions {
   concurrency?: number
 }
 
-export default class Transfer extends EventEmitter implements TransferEmitter {
+export default class Transfer extends AsyncEventEmitter implements TransferEmitter {
   private source: Container
   private target: Container
   private diffs: ItemDiff[]
@@ -68,7 +69,7 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
       success,
       time: end - start,
     }
-    this.emit('itemComplete', eventData)
+    await this.emit('itemComplete', eventData)
   }
 
   public complete(): Promise<any> {
@@ -80,7 +81,7 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
             const s3Options: S3DeleteModifier = {}
             const targetItem = diff.target
 
-            this.emit('delObject', targetItem.key, s3Options)
+            await this.emit('delObject', targetItem, s3Options)
             await this.completeItem(
               Date.now(),
               diff.type,
@@ -91,7 +92,7 @@ export default class Transfer extends EventEmitter implements TransferEmitter {
             const s3Options: S3PutModifier = {}
             const sourceItem = diff.source
 
-            this.emit('putObject', sourceItem.key, s3Options)
+            await this.emit('putObject', sourceItem, s3Options)
             await this.completeItem(
               Date.now(),
               diff.type,

@@ -11,12 +11,14 @@ export default class GlobTable <T> {
     this.map = map
   }
 
-  public lookup(key: string): T | undefined {
+  public lookup(key: string): T[] {
     const globs = Object.keys(this.map)
+    const ret: T[] = []
     for (let i = 0; i < globs.length; i++) {
       if (minimatch(key, globs[i])) {
-        return this.map[globs[i]]
+        ret.push(this.map[globs[i]])
       }
     }
+    return ret
   }
 }

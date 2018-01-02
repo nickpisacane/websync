@@ -22,12 +22,14 @@ import generationInvalidations, { WildcardPolicy } from './generateInvalidations
 const isS3Container = (container: Container): container is S3Container =>
   container.type === 'S3'
 
+export type WebsyncModifier <T> = T | ((item: Item) => T | Promise<T>)
+
 export interface WebsyncPutModifiers {
-  [key: string]: S3PutModifier
+  [key: string]: WebsyncModifier<S3PutModifier>
 }
 
 export interface WebsyncDeleteModifiers {
-  [key: string]: S3DeleteModifier
+  [key: string]: WebsyncModifier<S3DeleteModifier>
 }
 
 export interface WebsyncTransferProgressEvent extends TransferItemCompleteEvent {
@@ -38,6 +40,12 @@ export interface WebsyncEmitter {
   emit(event: 'progress', eventData: WebsyncTransferProgressEvent): boolean
   on(event: 'progress', listener: (eventData: WebsyncTransferProgressEvent) => void): this
 }
+
+const processModifiers = async <T> (item: Item, options: T, modifiers: WebsyncModifier<T>[]): Promise<void> =>
+  await modifiers.reduce(async (p: Promise<void>, m: WebsyncModifier<T>) => {
+    await p
+    Object.assign(options, typeof m === 'function' ? await m(item) : m)
+  }, Promise.resolve())
 
 export interface WebsyncOptions {
   source: string
@@ -57,8 +65,8 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   private source: Container
   private target: Container
   private filterOptions: FilterOptions
-  private putOptionsTable: GlobTable<S3PutModifier>
-  private deleteOptionsTable: GlobTable<S3DeleteModifier>
+  private putOptionsTable: GlobTable<WebsyncModifier<S3PutModifier>>
+  private deleteOptionsTable: GlobTable<WebsyncModifier<S3DeleteModifier>>
 
   private diffBy?: DiffKey = 'size'
 
@@ -84,8 +92,8 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     this.source = parseContainerFromURL(options.source)
     this.target = parseContainerFromURL(options.target)
     this.filterOptions = { include: options.include, exclude: options.exclude }
-    this.putOptionsTable = new GlobTable<S3PutModifier>(options.putOptions || {})
-    this.deleteOptionsTable = new GlobTable<S3DeleteModifier>(options.deleteOptions || {})
+    this.putOptionsTable = new GlobTable<WebsyncModifier<S3PutModifier>>(options.putOptions || {})
+    this.deleteOptionsTable = new GlobTable<WebsyncModifier<S3DeleteModifier>>(options.deleteOptions || {})
     this.completeCount = 0
 
     if (options.diffBy) {
@@ -123,17 +131,13 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     })
 
     this.transfer
-      .on('putObject', (key: string, options: S3PutModifier) => {
-        const opts = this.putOptionsTable.lookup(key)
-        if (opts) {
-          Object.assign(options, opts)
-        }
+      .on('putObject', async (item: Item, options: S3PutModifier) => {
+        const modifiers = this.putOptionsTable.lookup(item.key)
+        await processModifiers(item, options, modifiers)
       })
-      .on('deleteObject', (key: string, options: S3DeleteModifier) => {
-        const opts = this.deleteOptionsTable.lookup(key)
-        if (opts) {
-          Object.assign(options, opts)
-        }
+      .on('deleteObject', async (item: Item, options: S3DeleteModifier) => {
+        const modifiers = this.deleteOptionsTable.lookup(item.key)
+        await processModifiers(item, options, modifiers)
       })
       .on('itemComplete', (data: TransferItemCompleteEvent) => {
         this.completeCount++

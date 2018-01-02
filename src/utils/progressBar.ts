@@ -1,6 +1,13 @@
 import * as ProgressBar from 'progress'
 
-export default function progressBar(format: string, total: number = 15) {
+export type ProgressBarTokens = { [key: string]: string }
+export type ProgressBarFunc = (percentComplete: number, tokens?: ProgressBarTokens) => void
+
+/**
+ * Returns a function `ProgressBarFunc` to be called progressively with `percentComplete`, and
+ * an optional map of `tokens` to be interpolated into the format string.
+ */
+export default function progressBar(format: string, total: number = 15): ProgressBarFunc {
   let tick = 0
   const bar = new ProgressBar(format, {
     total,
