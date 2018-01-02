@@ -1,4 +1,5 @@
-# websync
+# Websync
+![travis](https://travis-ci.org/nickpisacane/websync.svg?branch=master)
 
 Websync sync is meant to be a replacement for `aws s3 sync`. Websync, like the AWS cli, syncs local directories with s3 prefixes, and visa-versa. Websync expands on these features by automatically creating *optimized* invalidations on any associated CloudFront distributions, and exposing an expressive configuration system (on top of the CLI interface) with JSON or JavaScript, and a programmatic API.
 
