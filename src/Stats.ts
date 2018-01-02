@@ -44,10 +44,19 @@ export default class Stats implements StatsObject {
     const c = new chalk.constructor({ enabled: colors })
     const diffToString = this.diffToString.bind(this, c)
     let ret = `${this.source} ${c.bold(c.greenBright(`\u2192`))} ${this.target}`
-    const invalidations = (this.invalidations || []).map(p => c.red(p))
+
+    if (!this.diffs.length) {
+      ret += `\nUP TO DATE`
+      return ret
+    }
+
     ret += `\nTook: ${this.time / 1000} s`
-    ret += `\nTransfer:\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
-    if (this.invalidated) {
+    if (this.diffs.length) {
+      ret += `\nTransfer:\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
+    }
+
+    const invalidations = (this.invalidations || []).map(p => c.red(p))
+    if (this.invalidated && invalidations.length) {
       const domains = (this.distributions || []).map(d => c.blue(d.DomainName))
       ret += `Invalidated on (${domains.join(', ')}):\n\t${invalidations.join('\n\t')}`
     }
