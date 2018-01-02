@@ -1,9 +1,23 @@
 {
   "name": "websync",
   "version": "0.0.2",
+  "description": "Replacement for `aws s3 sync` with automatic CloudFront invalidations and more.",
+  "keywords": [
+    "aws",
+    "s3",
+    "S3",
+    "CloudFront",
+    "sync",
+    "deploy",
+    "static website"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickpisacane/websync"
+  },
   "main": "./build/index.js",
   "types": "./build",
-  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
