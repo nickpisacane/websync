@@ -28,9 +28,9 @@ websync
 # Parse configuration explicitly
 websync --config ./myConfig.js
 # With command line options
-websync --source ./www --target s3://mybucket.io
+websync ./www s3://mybucket.io
 # General
-websync [...options]
+websync [source] [target] [...options]
 ```
 ### Options
 * `source` Source container (local directory or S3 bucket): `--source ./myDirectory`
