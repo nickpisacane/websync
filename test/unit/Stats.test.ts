@@ -54,4 +54,38 @@ describe('Stats', () => {
     const str = stats.toString()
     expect(str).to.be.a('string')
   })
+
+  it('toString() with no invalidations', () => {
+    const stats = new Stats({
+      source: './test-source',
+      target: 's3://test-target',
+      diffs: [{
+        type: 'CREATE',
+        key: 'foo/bar',
+        source: new MockItem(),
+      }],
+      distributions: [],
+      invalidations: [],
+      completed: true,
+      invalidated: false,
+      time: 0,
+    })
+
+    expect(/Invalidated/.test(stats.toString())).to.equal(false)
+  })
+
+  it('toString() with no diffs/invalidations', () => {
+    const stats = new Stats({
+      source: './test-source',
+      target: 's3://test-target',
+      diffs: [],
+      distributions: [],
+      invalidations: [],
+      completed: true,
+      invalidated: false,
+      time: 0,
+    })
+
+    expect(/UP TO DATE/.test(stats.toString())).to.equal(true)
+  })
 })
