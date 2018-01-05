@@ -36,6 +36,13 @@ export default class Stats implements StatsObject {
     return chalk[method](`${symbol} ${diff.key}`)
   }
 
+  private getDistributionName(dist: CloudFront.DistributionSummary): string {
+    if (dist.Aliases.Items && dist.Aliases.Items.length)  {
+      return dist.Aliases.Items[0]
+    }
+    return dist.DomainName
+  }
+
   public update(stats: Partial<StatsObject>) {
     Object.assign(this, stats)
   }
@@ -57,7 +64,7 @@ export default class Stats implements StatsObject {
 
     const invalidations = (this.invalidations || []).map(p => c.red(p))
     if (this.invalidated && invalidations.length) {
-      const domains = (this.distributions || []).map(d => c.blue(d.DomainName))
+      const domains = (this.distributions || []).map(d => c.blue(this.getDistributionName(d)))
       ret += `Invalidated on (${domains.join(', ')}):\n\t${invalidations.join('\n\t')}`
     }
     return ret
