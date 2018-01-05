@@ -59,7 +59,7 @@ export default class Stats implements StatsObject {
 
     ret += `\nTook: ${this.time / 1000} s`
     if (this.diffs.length) {
-      ret += `\nTransfer:\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
+      ret += `\nTransfered:\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     }
 
     const invalidations = (this.invalidations || []).map(p => c.red(p))
