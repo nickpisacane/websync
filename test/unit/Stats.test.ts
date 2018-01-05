@@ -30,8 +30,13 @@ describe('Stats', () => {
         ARN: 'FAKE ARN',
         Status: 'Deployed',
         LastModifiedTime: new Date(),
-        DomainName: 'foo.bar',
-        Aliases: [''],
+        DomainName: 'default.cloudfront.net',
+        Aliases: {
+          Quantity: 1,
+          Items: [
+            'foo.bar',
+          ],
+        },
         Origins: ['aws.s3.test-target'],
       } as any,
     ]
@@ -51,8 +56,9 @@ describe('Stats', () => {
       time: 100,
     })
 
-    const str = stats.toString()
+    const str = stats.toString({ colors: false })
     expect(str).to.be.a('string')
+    expect(/Invalidated on \(foo\.bar\)/.test(str)).to.equal(true)
   })
 
   it('toString() with no invalidations', () => {
