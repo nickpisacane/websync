@@ -13,6 +13,7 @@ export default function progressBar(format: string, total: number = 15): Progres
     total,
     incomplete: ':',
     complete: '\u2588',
+    clear: true,
   })
 
   return (percentComplete: number, tokens: { [key: string]: string } = {}) => {
