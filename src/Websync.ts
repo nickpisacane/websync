@@ -144,6 +144,10 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
         this.emit('progress', Object.assign({
           progress: this.completeCount / this.diffs.length,
         }, data) as WebsyncTransferProgressEvent)
+
+        if (data.success && (data.type === 'UPDATE' || data.type === 'CREATE')) {
+          this.stats.size += data.item.size
+        }
       })
 
     this.stats.update({
