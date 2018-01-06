@@ -62,7 +62,7 @@ export default async () => {
 
   websync.on('progress', (event: WebsyncTransferProgressEvent) => {
     progress(event.progress, {
-      success: event.success ? chalk.cyan(`\u2714`) : chalk.red(`\u2716`),
+      success: event.success ? chalk.green(`\u2714`) : chalk.red(`\u2716`),
       key: event.item.key,
       time: `${event.time}`,
     })
