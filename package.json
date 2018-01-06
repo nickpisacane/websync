@@ -1,6 +1,6 @@
 {
   "name": "websync",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Replacement for `aws s3 sync` with automatic CloudFront invalidations and more.",
   "keywords": [
     "aws",
