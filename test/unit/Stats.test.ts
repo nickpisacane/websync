@@ -60,7 +60,7 @@ describe('Stats', () => {
     const str = stats.toString({ colors: false })
     expect(str).to.be.a('string')
     expect(/Invalidated on \(foo\.bar\)/.test(str)).to.equal(true)
-    expect(/Transferred \(42\.00 MB\)/.test(str)).to.equal(true)
+    expect(/Transferred \(42 MB\)/.test(str)).to.equal(true)
   })
 
   it('toString() with no invalidations', () => {
