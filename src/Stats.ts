@@ -18,14 +18,14 @@ export interface StatsObject {
 export default class Stats implements StatsObject {
   public source: string
   public target: string
-  public diffs: ItemDiff[]
+  public diffs: ItemDiff[] = []
   public distributions?: CloudFront.DistributionSummary[]
   public invalidations?: string[]
-  public constitutesPayment: boolean
-  public completed: boolean
-  public invalidated: boolean
-  public time: number
-  public size: number
+  public constitutesPayment: boolean = false
+  public completed: boolean = false
+  public invalidated: boolean = false
+  public time: number = 0
+  public size: number = 0
 
   constructor(stats: Partial<StatsObject> = {}) {
     this.update(stats)
