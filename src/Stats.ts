@@ -62,13 +62,13 @@ export default class Stats implements StatsObject {
 
     ret += `\nTook: ${this.time / 1000} s`
     if (this.diffs.length) {
-      const amount = c.blue(bytes(this.amount, { unitSeparator: ' ' } as any))
+      const amount = c.cyan(bytes(this.amount, { unitSeparator: ' ' } as any))
       ret += `\nTransferred (${amount}):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     }
 
     const invalidations = (this.invalidations || []).map(p => c.red(p))
     if (this.invalidated && invalidations.length) {
-      const domains = (this.distributions || []).map(d => c.blue(this.getDistributionName(d)))
+      const domains = (this.distributions || []).map(d => c.cyan(this.getDistributionName(d)))
       ret += `Invalidated on (${domains.join(', ')}):\n\t${invalidations.join('\n\t')}`
     }
     return ret
