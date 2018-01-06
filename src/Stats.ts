@@ -64,7 +64,7 @@ export default class Stats implements StatsObject {
     ret += `\nTook: ${this.time / 1000} s`
     if (this.diffs.length) {
       const amount = (this.amount / ONE_MB).toFixed(2)
-      ret += `\nTransfered (${amount} MB):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
+      ret += `\nTransferred (${amount} MB):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     }
 
     const invalidations = (this.invalidations || []).map(p => c.red(p))
