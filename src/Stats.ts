@@ -25,6 +25,7 @@ export default class Stats implements StatsObject {
   public completed: boolean
   public invalidated: boolean
   public time: number
+  public size: number
 
   constructor(stats: Partial<StatsObject> = {}) {
     this.update(stats)
