@@ -146,7 +146,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
         }, data) as WebsyncTransferProgressEvent)
 
         if (data.success && (data.type === 'UPDATE' || data.type === 'CREATE')) {
-          this.stats.size += data.item.size
+          this.stats.amount += data.item.size
         }
       })
 
