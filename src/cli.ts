@@ -1,6 +1,7 @@
 import * as readLine from 'readline'
 import * as minimist from 'minimist'
 import * as AWS from 'aws-sdk'
+import chalk from 'chalk'
 import Websync, { WebsyncOptions, WebsyncTransferProgressEvent } from './Websync'
 import Config, { ConfigFile } from './Config'
 import progressBar from './utils/progressBar'
@@ -61,7 +62,7 @@ export default async () => {
 
   websync.on('progress', (event: WebsyncTransferProgressEvent) => {
     progress(event.progress, {
-      success: 'TODO',
+      success: event.success ? chalk.cyan(`\u2714`) : chalk.red(`\u2716`),
       key: event.item.key,
       time: `${event.time}`,
     })
