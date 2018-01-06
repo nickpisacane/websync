@@ -1,9 +1,8 @@
 import { CloudFront } from 'aws-sdk'
 import chalk, { Chalk } from 'chalk'
+import * as bytes from 'bytes'
 
 import { ItemDiff } from './types'
-
-const ONE_MB = 1 << 20
 
 export interface StatsObject {
   source: string
@@ -63,7 +62,7 @@ export default class Stats implements StatsObject {
 
     ret += `\nTook: ${this.time / 1000} s`
     if (this.diffs.length) {
-      const amount = c.blue(`${(this.amount / ONE_MB).toFixed(2)} MB`)
+      const amount = c.blue(bytes(this.amount, { unitSeparator: ' ' } as any))
       ret += `\nTransferred (${amount}):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     }
 
