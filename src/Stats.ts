@@ -75,7 +75,7 @@ export default class Stats implements StatsObject {
   }
 
   public clone(): Stats {
-    return new Stats({
+    const stats: StatsObject = {
       source: this.source,
       target: this.target,
       diffs: this.diffs,
@@ -85,6 +85,9 @@ export default class Stats implements StatsObject {
       completed: this.completed,
       invalidated: this.invalidated,
       time: this.time,
-    })
+      amount: this.amount,
+    }
+
+    return new Stats(stats)
   }
 }
