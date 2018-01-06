@@ -3,6 +3,8 @@ import chalk, { Chalk } from 'chalk'
 
 import { ItemDiff } from './types'
 
+const ONE_MB = 1 << 20
+
 export interface StatsObject {
   source: string
   target: string
@@ -60,7 +62,8 @@ export default class Stats implements StatsObject {
 
     ret += `\nTook: ${this.time / 1000} s`
     if (this.diffs.length) {
-      ret += `\nTransfered:\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
+      const size = (this.size / ONE_MB).toFixed(2)
+      ret += `\nTransfered (${size} MB):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     }
 
     const invalidations = (this.invalidations || []).map(p => c.red(p))
