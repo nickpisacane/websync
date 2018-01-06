@@ -15,6 +15,7 @@ export interface StatsObject {
   completed: boolean
   invalidated: boolean
   time: number
+  amount: number
 }
 
 export default class Stats implements StatsObject {
@@ -27,7 +28,7 @@ export default class Stats implements StatsObject {
   public completed: boolean = false
   public invalidated: boolean = false
   public time: number = 0
-  public size: number = 0
+  public amount: number = 0
 
   constructor(stats: Partial<StatsObject> = {}) {
     this.update(stats)
@@ -62,8 +63,8 @@ export default class Stats implements StatsObject {
 
     ret += `\nTook: ${this.time / 1000} s`
     if (this.diffs.length) {
-      const size = (this.size / ONE_MB).toFixed(2)
-      ret += `\nTransfered (${size} MB):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
+      const amount = (this.amount / ONE_MB).toFixed(2)
+      ret += `\nTransfered (${amount} MB):\n\t${this.diffs.map(diffToString).join('\n\t')}\n`
     }
 
     const invalidations = (this.invalidations || []).map(p => c.red(p))
