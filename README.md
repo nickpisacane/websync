@@ -1,6 +1,11 @@
 # Websync
 ![travis](https://travis-ci.org/nickpisacane/websync.svg?branch=master)
 
+Websync is like `aws s3 sync` with automatic CloudFront invalidation and more.
+
+![alt text](https://raw.githubusercontent.com/nickpisacane/websync/master/media/example.gif)
+
+
 Websync sync is meant to be a replacement for `aws s3 sync`. Websync, like the AWS cli, syncs local directories with s3 prefixes, and visa-versa. Websync expands on these features by automatically creating *optimized* invalidations on any associated CloudFront distributions, and exposing an expressive configuration system (on top of the CLI interface) with JSON or JavaScript, and a programmatic API.
 
 # Table Of Contents
@@ -34,7 +39,7 @@ websync ./www s3://mybucket.io
 websync [source] [target] [...options]
 ```
 ### Options
-* `source` Source container (local directory or S3 bucket): `--source ./myDirectory`
+* `source` Source container (local directory or S3 bucket): `./myDirectory`
 * `target` Target container (S3 bucket or local directory): `s3://my-bucket`
 * `config` Explicit configuration file (JSON or JavaScript): `--config ./myConfig.json`
 * `include` Glob pattern to filter files (from source) to include: `--include **/*.ext`
