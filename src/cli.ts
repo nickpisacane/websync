@@ -16,6 +16,7 @@ Options:
   --config             Provide a configuration file (js or json)
   --include            Pattern to include
   --exclude            Patter to exclude
+  --diffBy             Property by which objects are diffed (modtime or size), default is modtime
   --wildcardPolicy     Set the wildcard policy (majority, minority, or unanmious)
   --wildcardAll        Append wildcard to all invalidations
   --invalidateDeletes  Invalidate delete transfers
