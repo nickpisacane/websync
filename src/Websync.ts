@@ -68,7 +68,7 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   private putOptionsTable: GlobTable<WebsyncModifier<S3PutModifier>>
   private deleteOptionsTable: GlobTable<WebsyncModifier<S3DeleteModifier>>
 
-  private diffBy?: DiffKey = 'size'
+  private diffBy?: DiffKey = 'modtime'
 
   private wildcardPolicy: WildcardPolicy = 'majority'
   private wildcardAll: boolean = false
