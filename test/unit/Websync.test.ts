@@ -58,4 +58,18 @@ describe('Websync', () => {
       expect(err.message).to.equal('NoSuchKey: The specified key does not exist.')
     }
   })
+
+  it('defaults', () => {
+    const websync = new Websync({
+      source: 'foo',
+      target: 'bar',
+    }) as any
+
+    expect(websync.diffBy).to.equal('modtime')
+    expect(websync.wildcardPolicy).to.equal('majority')
+    expect(websync.wildcardAll).to.equal(false)
+    expect(websync.invalidateDeletes).to.equal(false)
+    expect(websync.filterOptions.include).to.equal(undefined)
+    expect(websync.filterOptions.exclude).to.equal(undefined)
+  })
 })
