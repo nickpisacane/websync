@@ -1,6 +1,6 @@
 import { Container, Item, ItemDiffType, ItemDiff, FilterOptions } from './types'
 
-export type DiffKey = 'modtime' | 'size'
+export type DiffKey = 'modtime' | 'size' | 'etag'
 
 const getItem = (items: Item[], key: string): Item | undefined => {
   for (let i = 0; i < items.length; i++) {
@@ -14,6 +14,8 @@ const shouldUpdate = (source: Item, target: Item, diffKey: DiffKey): boolean => 
       return source.modtime.getTime() > target.modtime.getTime()
     case 'size':
       return source.size !== target.size
+    case 'etag':
+      return source.etag() !== target.etag()
   }
 }
 

@@ -20,6 +20,10 @@ export class MockItem implements Item {
   public read(): Promise<Buffer> {
     return Promise.resolve(new Buffer(this.size))
   }
+
+  etag(): string {
+    return faker.random.word()
+  }
 }
 
 const randomContainerType = (): ContainerType =>

@@ -67,3 +67,6 @@ typings/
 .terraform
 *.tfstate
 *.tfstate.backup
+
+# WebStorm
+.idea
