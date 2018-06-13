@@ -18,8 +18,8 @@ export interface StatsObject {
 }
 
 export default class Stats implements StatsObject {
-  public source: string
-  public target: string
+  public source: string = ''
+  public target: string = ''
   public diffs: ItemDiff[] = []
   public distributions?: CloudFront.DistributionSummary[]
   public invalidations?: string[]

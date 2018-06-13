@@ -77,12 +77,12 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
   private initialized: boolean = false
   private completed: boolean = false
 
-  private diffs: ItemDiff[]
+  private diffs: ItemDiff[] = []
   private stats: Stats
-  private transfer: Transfer
+  private transfer?: Transfer
   private invalidations: string[] | undefined
   private invalidator: CloudFrontInvalidator | undefined
-  private distributions: string[]
+  private distributions?: string[]
 
   private completeCount = 0
 
@@ -197,7 +197,9 @@ export default class Websync extends EventEmitter implements WebsyncEmitter {
     }
 
     try {
-      await this.transfer.complete()
+      if (this.transfer !== undefined) {
+        await this.transfer.complete()
+      }
     } catch (err) {
       throw new Errors.TransferFailed(err)
     }
