@@ -93,6 +93,7 @@ export default class S3Container extends S3Prefixer implements Container {
     const s3Object: S3.Object = {
       Key: key,
       LastModified: objectHead.LastModified,
+      ETag: objectHead.ETag,
       Size: body.length,
     }
     const ret: Item = new S3Item(item.key, s3Object)

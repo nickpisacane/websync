@@ -7,7 +7,7 @@ const s3 = new S3()
 export default class S3Item extends S3Prefixer implements Item {
   private s3Object: S3.Object
   private bucketName: string
-  private remoteEtag: string
+  private remoteEtag?: string
 
   public key: string
   public modtime: Date
@@ -25,9 +25,6 @@ export default class S3Item extends S3Prefixer implements Item {
     }
     if (typeof s3Object.LastModified === 'undefined') {
       throw new Error(`S3Item: LastModified is required on s3Object`)
-    }
-    if (typeof s3Object.ETag === 'undefined') {
-      throw new Error(`S3Item: ETag is required on s3Object`)
     }
     if (typeof s3Object.Size !== 'number') {
       throw new Error(`S3Item: Size is required on s3Object`)
@@ -66,6 +63,6 @@ export default class S3Item extends S3Prefixer implements Item {
   }
 
   public etag(): string {
-    return this.remoteEtag;
+    return this.remoteEtag || ''
   }
 }

@@ -64,6 +64,7 @@ const createContainerTest = (prefix: string = '') => () => {
     const item: Item = {
       key: 'bang/a/b/d.txt',
       modtime: new Date(),
+      etag: () => '3e25960a79dbc69b674cd4ec67a72c62',
       size: body.length,
       isSymbolicLink: false,
       read: () => Promise.resolve(body),
@@ -89,6 +90,7 @@ const createContainerTest = (prefix: string = '') => () => {
     const item: Item = {
       key: 'test.txt',
       modtime: new Date(),
+      etag: () => '3e25960a79dbc69b674cd4ec67a72c62',
       size: body.length,
       isSymbolicLink: false,
       read: () => Promise.resolve(body),
@@ -114,6 +116,7 @@ const createContainerTest = (prefix: string = '') => () => {
     const item: Item = {
       key: 'index.html',
       modtime: new Date(),
+      etag: () => '3e25960a79dbc69b674cd4ec67a72c62',
       size: body.length,
       isSymbolicLink: false,
       read: () => Promise.resolve(body),
