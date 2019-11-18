@@ -12,15 +12,15 @@ describe('FileContainer', () => {
   it('listItems only lists files', async () => {
     const fileItems = await fileContainer.listItems()
     const expectedKeys = [
+      '.dotDirectory/boom.txt',
       'bang/baz.txt',
       'bar.txt',
       'foo.txt',
     ]
+
     const actualKeys = fileItems.map(i => i.key)
 
-    expect(
-      expectedKeys.every(key => !!~actualKeys.indexOf(key))
-    ).to.equal(true)
+    expect(expectedKeys).to.have.members(actualKeys);
   })
 
   it('putItem()', async () => {

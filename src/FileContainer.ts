@@ -20,7 +20,7 @@ export default class FileContainer implements Container {
 
   private readAllFileNames(): Promise<string[]> {
     return new Promise((resolve, reject) => {
-      glob(Path.join(this.getDir(), '**'), (err, fileNames) => {
+      glob(Path.join(this.getDir(), '**'),{ dot: true },  (err, fileNames) => {
         if (err) return reject(err)
 
         fileNames = fileNames
