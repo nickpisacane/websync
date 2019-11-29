@@ -7,6 +7,7 @@ const s3 = new S3()
 export default class S3Item extends S3Prefixer implements Item {
   private s3Object: S3.Object
   private bucketName: string
+  private remoteEtag?: string
 
   public key: string
   public modtime: Date
@@ -30,6 +31,7 @@ export default class S3Item extends S3Prefixer implements Item {
     }
     this.key = s3Object.Key
     this.modtime = s3Object.LastModified
+    this.remoteEtag = s3Object.ETag
     this.size = s3Object.Size
     this.isSymbolicLink = false
   }
@@ -58,5 +60,9 @@ export default class S3Item extends S3Prefixer implements Item {
 
   public read(): Promise<Buffer> {
     return this.getBody()
+  }
+
+  public etag(): string {
+    return this.remoteEtag || ''
   }
 }
